@@ -1,0 +1,29 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>{{ title }}</title>
+        <link rel="stylesheet" type="text/css" href="/css/style.css"/>
+    </head>
+    <body>
+        <h1>Wicoin blockchain</h1>
+        <h2>Login</h2>
+        <form method="post" action="/blockchain/login">
+            <table>
+                <tbody>
+                    <tr>
+                        <td><label for="email">Email :</label></td>
+                        <td><input type="email" name="email" id="email" autofocus required></td>
+                    </tr>
+                    <tr>
+                        <td><label for="password">Password :</label></td>
+                        <td><input type="password" name="password" id="password" minlength="12" required></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"><input type="submit" value="Login"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </body>
+</html>
