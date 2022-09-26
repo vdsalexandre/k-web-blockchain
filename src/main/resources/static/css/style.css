@@ -1,3 +1,22 @@
 .container {
     width: 60% !important;
 }
+
+#toast-container {
+    top: 40% !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: 35%;
+}
+
+.btn {
+    background: -webkit-linear-gradient(left, rgb(39, 142, 116) 0%, rgb(99, 253, 136) 100%) !important;
+    width: 150px !important;
+    min-width: 80px !important;
+}
+
+.row .col {
+    float: none !important;
+    margin-left: auto;
+    margin-right: auto;
+}
