@@ -1,8 +1,8 @@
 package com.vds.wishow.kwebblockchain.api
 
 import com.vds.wishow.kwebblockchain.logger.LoggerAOP
-import com.vds.wishow.kwebblockchain.model.User
-import com.vds.wishow.kwebblockchain.service.WicoinService
+import com.vds.wishow.kwebblockchain.model.Wiuser
+import com.vds.wishow.kwebblockchain.service.WiuserService
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -12,7 +12,7 @@ import org.springframework.web.servlet.ModelAndView
 
 @Controller
 @RequestMapping(value = ["/blockchain"])
-class WicoinResource(val service: WicoinService) {
+class WiuserResource(val service: WiuserService) {
 
     @LoggerAOP
     @GetMapping(value = ["/", ""])
@@ -23,9 +23,15 @@ class WicoinResource(val service: WicoinService) {
 
     @LoggerAOP
     @PostMapping("/login")
-    fun login(@ModelAttribute user: User, model: MutableMap<String, Any>): ModelAndView {
-        model["title"] = "Home - Welcome to Wicoin Blockchain"
-        model["email"] = user.email!!
-        return ModelAndView("home", model)
+    fun login(@ModelAttribute wiUser: Wiuser, model: MutableMap<String, Any>): ModelAndView {
+        return if (service.findBy(wiUser.email, wiUser.password) != null) {
+            model["title"] = "Home - Welcome to Wicoin Blockchain"
+            model["email"] = wiUser.email
+            ModelAndView("home", model)
+        } else {
+            model["title"] = "Login - Welcome to Wicoin Blockchain"
+            model["errorMessage"] = "User not found (problem with email and/or password)"
+            ModelAndView("login", model)
+        }
     }
 }

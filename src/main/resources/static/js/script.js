@@ -5,6 +5,8 @@ document.addEventListener('DOMContentLoaded', function() {
         'margin': 2
     };
     var tooltipsOptionsInstances = M.Tooltip.init(tooltips, tooltipsOptions);
+
+    showErrorMessage();
 });
 
 function validateData(event) {
@@ -15,4 +17,11 @@ function validateData(event) {
         event.preventDefault();
         M.toast({html: "Email and password can't be empty !", displayLength: 2000});
     }
+}
+
+function showErrorMessage() {
+    var errorMessage = document.querySelector('#error-message').value;
+
+    if (errorMessage)
+        M.toast({html: errorMessage, displayLength: 3500});
 }

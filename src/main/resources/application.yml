@@ -8,8 +8,12 @@ spring:
         web-allow-others: false
   datasource:
     url: jdbc:h2:mem:wicoin;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;CASE_INSENSITIVE_IDENTIFIERS=TRUE;
-    username: root
-    password: root
-    driver-class-name: org.h2.driver
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate.ddl-auto: none
+    database-platform: org.hibernate.dialect.H2Dialect
+    defer-datasource-initialization: true
 server:
   port: 9090

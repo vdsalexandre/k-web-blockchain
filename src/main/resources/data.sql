@@ -1,0 +1,1 @@
+INSERT INTO wiuser (email, password) VALUES ('vdsalex@hotmail.com', 'Wxcvbn123456789;@');
