@@ -1,13 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     initTooltips();
     initCharacterCounter();
-
-
-    var password2 = document.getElementById("register_password2");
-    password2.addEventListener('focusout', (event) => {
-        validatePassword()
-    });
-
+    initFocusOutRegisterPassword();
     showErrorMessage();
 });
 
@@ -55,5 +49,15 @@ function validatePassword() {
         span.dataset.error = "The two passwords aren't identical !";
     } else {
         password2.classList.remove("invalid");
+    }
+}
+
+function initFocusOutRegisterPassword() {
+    var password2 = document.getElementById("register_password2");
+
+    if (password2) {
+        password2.addEventListener('focusout', (event) => {
+            validatePassword()
+        });
     }
 }

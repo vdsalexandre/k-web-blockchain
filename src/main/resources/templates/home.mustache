@@ -1,11 +1,8 @@
 {{> parts/header }}
     <body>
         <h1>Wicoin blockchain</h1>
-        <h3>Welcome {{ username }}</h3>
+        <h3>Welcome <span>{{ username }} <i class="material-icons green-text">verified_user</i></span></h3>
         <h4>What do you want to do ?</h4>
-        {{# jwt }}
-            <h6>{{ jwt }}</h6>
-        {{/ jwt }}
         <ul>
             <li>Create a new wallet</li>
             <li>Send / Receive wicoins</li>

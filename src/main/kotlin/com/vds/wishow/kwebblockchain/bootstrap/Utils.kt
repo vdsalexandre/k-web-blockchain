@@ -8,7 +8,8 @@ import java.util.Date
 
 object Utils {
     const val USER_NOT_FOUND = "User not found - wrong email and/or password"
-    const val WRONG_AUTH_TOKEN = "Authentication token invalid"
+    const val WRONG_AUTH_BAD_TOKEN = "Authentication token invalid"
+    const val WRONG_AUTH_NOT_LOGGED = "Authentication failed, you must log-in to access this area"
 
     const val TITLE_LOGIN = "Login - Wicoin Blockchain"
     const val TITLE_REGISTER = "Register - Wicoin Blockchain"
@@ -35,13 +36,17 @@ object Utils {
     }
 
     fun extractJWSBody(jws: String, privateKey: PrivateKey): String {
-        return Jwts
+        return try {
+            Jwts
                 .parserBuilder()
                 .setSigningKey(privateKey)
                 .build()
                 .parse(jws)
                 .body
                 .toString()
+        } catch (e: Exception) {
+            ""
+        }
     }
 
     fun extractIssuerValueFromBody(body: String) = body.substringAfter("iss=").substringBefore(",").toLong()

@@ -7,7 +7,8 @@ import com.vds.wishow.kwebblockchain.bootstrap.Utils.TITLE_WALLET
 import com.vds.wishow.kwebblockchain.bootstrap.Utils.URL_AUTH_TOKEN
 import com.vds.wishow.kwebblockchain.bootstrap.Utils.URL_AUTH_USER
 import com.vds.wishow.kwebblockchain.bootstrap.Utils.USER_NOT_FOUND
-import com.vds.wishow.kwebblockchain.bootstrap.Utils.WRONG_AUTH_TOKEN
+import com.vds.wishow.kwebblockchain.bootstrap.Utils.WRONG_AUTH_BAD_TOKEN
+import com.vds.wishow.kwebblockchain.bootstrap.Utils.WRONG_AUTH_NOT_LOGGED
 import com.vds.wishow.kwebblockchain.bootstrap.Utils.hash
 import com.vds.wishow.kwebblockchain.model.Wiuser
 import com.vds.wishow.kwebblockchain.service.WiuserService
@@ -31,7 +32,7 @@ import javax.servlet.http.HttpServletResponse
 class WiuserResource(val service: WiuserService) {
 
     @GetMapping("/")
-    fun index(model: MutableMap<String, Any>): ModelAndView {
+    fun index(): ModelAndView {
         return ModelAndView("redirect:login")
     }
 
@@ -61,7 +62,6 @@ class WiuserResource(val service: WiuserService) {
             val cookie = Cookie("jws", jws)
             cookie.isHttpOnly = true // browser can't read the cookie, just for the backend
             response.addCookie(cookie)
-
             attributes.addFlashAttribute("username", wiuser.username)
             ModelAndView("redirect:home")
         } else {
@@ -90,21 +90,22 @@ class WiuserResource(val service: WiuserService) {
     }
 
     @GetMapping("/home")
-    fun home(request: HttpServletRequest, model: MutableMap<String, Any>): ModelAndView {
+    fun home(request: HttpServletRequest, model: MutableMap<String, Any>, attributes: RedirectAttributes): ModelAndView {
         if (!model.containsKey("username")) {
             val params: MutableMap<String, String> = mutableMapOf()
             val cookie = WebUtils.getCookie(request, "jws")
 
             if (cookie != null) {
                 params["jws"] = cookie.value
-                val response = getUserDetails(params)
-                if (response.statusCode == HttpStatus.BAD_REQUEST) {
-                    return errorView(WRONG_AUTH_TOKEN)
+                try {
+                    val response = getUserDetails(params)
+                    val wiuser = response.body
+                    model["username"] = wiuser!!.username
+                } catch (e: Exception) {
+                    return errorView(WRONG_AUTH_BAD_TOKEN, attributes)
                 }
-                val wiuser = response.body
-                model["username"] = wiuser!!.username
             } else {
-                return errorView(WRONG_AUTH_TOKEN)
+                return errorView(WRONG_AUTH_NOT_LOGGED, attributes)
             }
         }
         model["title"] = TITLE_HOME
@@ -124,8 +125,8 @@ class WiuserResource(val service: WiuserService) {
             model["id"] = wiuser.id.toString()
             ModelAndView("wallet", model)
         } else {
-            model["errorMessage"] = WRONG_AUTH_TOKEN
-            model["title"] = WRONG_AUTH_TOKEN
+            model["errorMessage"] = WRONG_AUTH_BAD_TOKEN
+            model["title"] = WRONG_AUTH_BAD_TOKEN
             ModelAndView("error", model)
         }
     }
@@ -136,10 +137,9 @@ class WiuserResource(val service: WiuserService) {
     private fun getUserDetails(params: MutableMap<String, String>) =
         RestTemplate().getForEntity("$URL_AUTH_USER/{jws}", Wiuser::class.java, params)
 
-    private fun errorView(message: String): ModelAndView {
-        val model: MutableMap<String, Any> = mutableMapOf()
-        model["errorMessage"] = message
-        model["title"] = message
-        return ModelAndView("error", model)
+    private fun errorView(message: String, attributes: RedirectAttributes): ModelAndView {
+        attributes.addFlashAttribute("errorMessage", message)
+        attributes.addFlashAttribute("title", message)
+        return ModelAndView("redirect:error")
     }
 }

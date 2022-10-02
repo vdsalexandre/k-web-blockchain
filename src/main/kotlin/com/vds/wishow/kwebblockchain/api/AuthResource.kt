@@ -2,10 +2,10 @@ package com.vds.wishow.kwebblockchain.api
 
 import com.vds.wishow.kwebblockchain.bootstrap.Utils
 import com.vds.wishow.kwebblockchain.bootstrap.Utils.extractIssuerValueFromBody
-import com.vds.wishow.kwebblockchain.model.Wiuser
 import com.vds.wishow.kwebblockchain.service.WiuserService
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
@@ -21,16 +21,15 @@ class AuthResource(val service: WiuserService) {
     private val keyPair = Keys.keyPairFor(SignatureAlgorithm.PS512)
 
     @GetMapping("/user/{jws}")
-    fun userDetails(@PathVariable jws: String?): ResponseEntity<Wiuser?> {
+    fun userDetails(@PathVariable jws: String?): ResponseEntity<Any> {
         if (jws != null) {
             val body = Utils.extractJWSBody(jws, keyPair.private)
-            var id = -1L
             if (body.isNotBlank()) {
-                id = extractIssuerValueFromBody(body)
+                val id = extractIssuerValueFromBody(body)
+                return ResponseEntity.ok(service.findById(id))
             }
-            return ResponseEntity.ok(service.findById(id))
         }
-        return ResponseEntity.badRequest().body(null)
+        return ResponseEntity<Any>("JWT signature does not match locally computed signature", HttpStatus.UNAUTHORIZED)
     }
 
     @GetMapping("/token/{id}")

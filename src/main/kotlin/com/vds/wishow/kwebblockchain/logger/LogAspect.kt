@@ -24,7 +24,7 @@ class LogAspect {
         val result = try {
             joinPoint.proceed()
         } catch (throwable: Throwable) {
-            logger.error("*** Exception during executing ${joinPoint.signature.toShortString()}", throwable)
+            logger.error("*** Exception during executing ${joinPoint.signature.toShortString()} - ${throwable.message}", throwable)
             throw throwable
         }
         val duration = System.currentTimeMillis() - start
