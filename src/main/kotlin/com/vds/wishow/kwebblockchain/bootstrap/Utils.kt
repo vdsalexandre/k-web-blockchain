@@ -21,7 +21,7 @@ object Utils {
 
     private const val ONE_DAY: Long = 1000 * 60 * 24
 
-    fun hash(algorithm: String, stringToHash: String): String {
+    fun hash(stringToHash: String, algorithm: String = "SHA-512"): String {
         return MessageDigest
             .getInstance(algorithm)
             .digest(stringToHash.toByteArray())
@@ -37,7 +37,7 @@ object Utils {
             .compact()
     }
 
-    fun verifyJWSAndExtractBody(jws: String, privateKey: PrivateKey): String {
+    fun verifyJWSAndExtractIssuer(jws: String, privateKey: PrivateKey): Long? {
         return try {
             Jwts
                 .parserBuilder()
@@ -46,10 +46,16 @@ object Utils {
                 .parse(jws)
                 .body
                 .toString()
+                .extractIssuerFromBody()
         } catch (e: Exception) {
-            ""
+            null
         }
     }
 
-    fun extractIssuerValueFromBody(body: String) = body.substringAfter("iss=").substringBefore(",").toLong()
+    private fun String.extractIssuerFromBody(): Long {
+        return this
+            .substringAfter("iss=")
+            .substringBefore(",")
+            .toLong()
+    }
 }

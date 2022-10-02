@@ -1,7 +1,7 @@
-package com.vds.wishow.kwebblockchain.service
+package com.vds.wishow.kwebblockchain.domain.service
 
-import com.vds.wishow.kwebblockchain.model.Wiuser
-import com.vds.wishow.kwebblockchain.repository.WiuserRepository
+import com.vds.wishow.kwebblockchain.domain.model.Wiuser
+import com.vds.wishow.kwebblockchain.domain.repository.WiuserRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 

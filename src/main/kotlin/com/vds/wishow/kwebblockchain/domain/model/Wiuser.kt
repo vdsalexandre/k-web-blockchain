@@ -1,4 +1,4 @@
-package com.vds.wishow.kwebblockchain.model
+package com.vds.wishow.kwebblockchain.domain.model
 
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue

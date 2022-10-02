@@ -1,5 +1,7 @@
-package com.vds.wishow.kwebblockchain.api
+package com.vds.wishow.kwebblockchain.api.resource
 
+import com.vds.wishow.kwebblockchain.api.dto.UserLoginDTO
+import com.vds.wishow.kwebblockchain.api.dto.UserRegisterDTO
 import com.vds.wishow.kwebblockchain.bootstrap.Utils.TITLE_HOME
 import com.vds.wishow.kwebblockchain.bootstrap.Utils.TITLE_LOGIN
 import com.vds.wishow.kwebblockchain.bootstrap.Utils.TITLE_REGISTER
@@ -10,8 +12,8 @@ import com.vds.wishow.kwebblockchain.bootstrap.Utils.USER_NOT_FOUND
 import com.vds.wishow.kwebblockchain.bootstrap.Utils.WRONG_AUTH_BAD_TOKEN
 import com.vds.wishow.kwebblockchain.bootstrap.Utils.WRONG_AUTH_NOT_LOGGED
 import com.vds.wishow.kwebblockchain.bootstrap.Utils.hash
-import com.vds.wishow.kwebblockchain.model.Wiuser
-import com.vds.wishow.kwebblockchain.service.WiuserService
+import com.vds.wishow.kwebblockchain.domain.model.Wiuser
+import com.vds.wishow.kwebblockchain.domain.service.WiuserService
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -42,15 +44,12 @@ class WiuserResource(val service: WiuserService) {
 
     @PostMapping("/login")
     fun handleLogin(
-        @RequestParam email: String,
-        @RequestParam password: String,
+        userLoginDTO: UserLoginDTO,
         attributes: RedirectAttributes,
         model: MutableMap<String, Any>,
         response: HttpServletResponse
     ): ModelAndView {
-        val hashedUserEmail = hash("SHA-512", email)
-        val hashedUserPassword = hash("SHA-512", password)
-        val wiuser = service.findBy(hashedUserEmail, hashedUserPassword)
+        val wiuser = service.findBy(hash(userLoginDTO.email), hash(userLoginDTO.password))
 
         return if (wiuser != null) {
             val params: MutableMap<String, Long> = mutableMapOf()
@@ -76,13 +75,9 @@ class WiuserResource(val service: WiuserService) {
     }
 
     @PostMapping("/register")
-    fun handleRegister(@RequestParam email: String, @RequestParam password: String, @RequestParam username: String): ModelAndView {
+    fun handleRegister(userRegisterDTO: UserRegisterDTO, @RequestParam username: String): ModelAndView {
         service.save(
-            Wiuser(
-                email = hash("SHA-512", email),
-                password = hash("SHA-512", password),
-                username = username
-            )
+            Wiuser(email = hash(userRegisterDTO.email), password = hash(userRegisterDTO.password), username = username)
         )
         return ModelAndView("redirect:login")
     }

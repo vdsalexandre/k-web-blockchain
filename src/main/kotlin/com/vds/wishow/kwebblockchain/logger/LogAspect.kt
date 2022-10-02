@@ -7,19 +7,19 @@ import org.aspectj.lang.reflect.MethodSignature
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
-private val logger = LoggerFactory.getLogger(LogAspect::class.java)
-
 @Aspect
 @Component
 class LogAspect {
-    @Around("execution(* com.vds.wishow.kwebblockchain.api.*.*(..))")
+    private val logger = LoggerFactory.getLogger(LogAspect::class.java)
+
+    @Around("execution(* com.vds.wishow.kwebblockchain.api.resource.*.*(..))")
     fun logExecution(joinPoint: ProceedingJoinPoint): Any {
         val start = System.currentTimeMillis()
-        val resource = joinPoint.staticPart.signature.declaringTypeName.split(".").last()
-        val method = joinPoint.staticPart.signature.name
+        val resource = joinPoint.signature.declaringTypeName.split(".").last()
+        val method = joinPoint.signature.name
         val url = extractUrlFrom(joinPoint)
 
-        val httpVerb = (joinPoint.signature as MethodSignature).method.annotations[0].annotationClass.simpleName
+        val httpVerb = extractHttpVerb(joinPoint)
         val toLog = "$httpVerb on $resource.$method() - requestMapping: $url"
         val result = try {
             joinPoint.proceed()
@@ -32,12 +32,14 @@ class LogAspect {
         return result
     }
 
+    private fun extractHttpVerb(joinPoint: ProceedingJoinPoint) =
+        (joinPoint.signature as MethodSignature).method.annotations.first().annotationClass.simpleName
+
     private fun extractUrlFrom(joinPoint: ProceedingJoinPoint): String {
         return (joinPoint.signature as MethodSignature)
-            .method.declaredAnnotations[0]
+            .method.declaredAnnotations.first()
             .toString()
             .substringAfter("value={")
             .substringBefore("}, consumes")
     }
 }
-
