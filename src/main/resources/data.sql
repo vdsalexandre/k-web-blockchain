@@ -1,4 +1,4 @@
-INSERT INTO wiuser (username, email, password) VALUES -- wicoin@hotmail.com Wxcvbn123456789;@
+INSERT INTO wiuser (username, email, password) VALUES
 (
     'AlexSuperCool',
     '272244d1a56aaa72aadca3f1f800b3e9f1afd10d1532dbc6c2285780cc29d071829025bccd383ba07d5dcbf2fdb6a3038c1ac5305a30f0201ce6700664344a2e',

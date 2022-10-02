@@ -23,7 +23,7 @@ class AuthResource(val service: WiuserService) {
     @GetMapping("/user/{jws}")
     fun userDetails(@PathVariable jws: String?): ResponseEntity<Any> {
         if (jws != null) {
-            val body = Utils.extractJWSBody(jws, keyPair.private)
+            val body = Utils.verifyJWSAndExtractBody(jws, keyPair.private)
             if (body.isNotBlank()) {
                 val id = extractIssuerValueFromBody(body)
                 return ResponseEntity.ok(service.findById(id))

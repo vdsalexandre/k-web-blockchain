@@ -19,6 +19,8 @@ object Utils {
     const val URL_AUTH_TOKEN = "http://localhost:9090/auth/token"
     const val URL_AUTH_USER = "http://localhost:9090/auth/user"
 
+    private const val ONE_DAY: Long = 1000 * 60 * 24
+
     fun hash(algorithm: String, stringToHash: String): String {
         return MessageDigest
             .getInstance(algorithm)
@@ -30,12 +32,12 @@ object Utils {
         return Jwts
             .builder()
             .setIssuer(issuer)
-            .setIssuedAt(Date(System.currentTimeMillis()))
+            .setExpiration(Date(System.currentTimeMillis() + ONE_DAY))
             .signWith(privateKey)
             .compact()
     }
 
-    fun extractJWSBody(jws: String, privateKey: PrivateKey): String {
+    fun verifyJWSAndExtractBody(jws: String, privateKey: PrivateKey): String {
         return try {
             Jwts
                 .parserBuilder()

@@ -12,9 +12,7 @@ import com.vds.wishow.kwebblockchain.bootstrap.Utils.WRONG_AUTH_NOT_LOGGED
 import com.vds.wishow.kwebblockchain.bootstrap.Utils.hash
 import com.vds.wishow.kwebblockchain.model.Wiuser
 import com.vds.wishow.kwebblockchain.service.WiuserService
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.CookieValue
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -89,6 +87,14 @@ class WiuserResource(val service: WiuserService) {
         return ModelAndView("redirect:login")
     }
 
+    @PostMapping("/logout")
+    fun handleLogout(response: HttpServletResponse): ModelAndView {
+        val cookie = Cookie("jws", "")
+        cookie.maxAge = 0
+        response.addCookie(cookie)
+        return ModelAndView("redirect:login")
+    }
+
     @GetMapping("/home")
     fun home(request: HttpServletRequest, model: MutableMap<String, Any>, attributes: RedirectAttributes): ModelAndView {
         if (!model.containsKey("username")) {
@@ -96,8 +102,8 @@ class WiuserResource(val service: WiuserService) {
             val cookie = WebUtils.getCookie(request, "jws")
 
             if (cookie != null) {
-                params["jws"] = cookie.value
                 try {
+                    params["jws"] = cookie.value
                     val response = getUserDetails(params)
                     val wiuser = response.body
                     model["username"] = wiuser!!.username
@@ -113,22 +119,24 @@ class WiuserResource(val service: WiuserService) {
     }
 
     @GetMapping("/wallet")
-    fun wallet(@CookieValue jws: String, model: MutableMap<String, Any>): ModelAndView {
+    fun wallet(request: HttpServletRequest, model: MutableMap<String, Any>, attributes: RedirectAttributes): ModelAndView {
         val params: MutableMap<String, String> = mutableMapOf()
-        params["jws"] = jws
-        val response = getUserDetails(params)
-        val wiuser = response.body
+        val cookie = WebUtils.getCookie(request, "jws")
 
-        return if (wiuser != null && response.statusCode == HttpStatus.OK) {
-            model["title"] = TITLE_WALLET
-            model["username"] = wiuser.username
-            model["id"] = wiuser.id.toString()
-            ModelAndView("wallet", model)
-        } else {
-            model["errorMessage"] = WRONG_AUTH_BAD_TOKEN
-            model["title"] = WRONG_AUTH_BAD_TOKEN
-            ModelAndView("error", model)
+        if (cookie != null) {
+            return try {
+                params["jws"] = cookie.value
+                val response = getUserDetails(params)
+                val wiuser = response.body
+                model["title"] = TITLE_WALLET
+                model["username"] = wiuser!!.username
+                model["id"] = wiuser.id.toString()
+                ModelAndView("wallet", model)
+            } catch (e: Exception) {
+                errorView(WRONG_AUTH_BAD_TOKEN, attributes)
+            }
         }
+        return errorView(WRONG_AUTH_NOT_LOGGED, attributes)
     }
 
     private fun getUserToken(params: MutableMap<String, Long>) =
