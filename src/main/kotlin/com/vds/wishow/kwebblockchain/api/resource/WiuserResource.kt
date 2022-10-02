@@ -91,42 +91,41 @@ class WiuserResource(val service: WiuserService) {
     }
 
     @GetMapping("/home")
-    fun home(request: HttpServletRequest, model: MutableMap<String, Any>, attributes: RedirectAttributes): ModelAndView {
-        if (!model.containsKey("username")) {
-            val params: MutableMap<String, String> = mutableMapOf()
-            val cookie = WebUtils.getCookie(request, "jws")
-
-            if (cookie != null) {
-                try {
-                    params["jws"] = cookie.value
-                    val response = getUserDetails(params)
-                    val wiuser = response.body
-                    model["username"] = wiuser!!.username
-                } catch (e: Exception) {
-                    return errorView(WRONG_AUTH_BAD_TOKEN, attributes)
-                }
-            } else {
-                return errorView(WRONG_AUTH_NOT_LOGGED, attributes)
-            }
-        }
-        model["title"] = TITLE_HOME
-        return ModelAndView("home", model)
+    fun home(
+        request: HttpServletRequest,
+        model: MutableMap<String, Any>,
+        attributes: RedirectAttributes
+    ): ModelAndView {
+        return handleGetRequest(request, model, attributes, "home", TITLE_HOME)
     }
 
     @GetMapping("/wallet")
-    fun wallet(request: HttpServletRequest, model: MutableMap<String, Any>, attributes: RedirectAttributes): ModelAndView {
-        val params: MutableMap<String, String> = mutableMapOf()
+    fun wallet(
+        request: HttpServletRequest,
+        model: MutableMap<String, Any>,
+        attributes: RedirectAttributes
+    ): ModelAndView {
+        return handleGetRequest(request, model, attributes, "wallet", TITLE_WALLET)
+    }
+
+    private fun handleGetRequest(
+        request: HttpServletRequest,
+        model: MutableMap<String, Any>,
+        attributes: RedirectAttributes,
+        viewName: String,
+        viewTitle: String,
+    ): ModelAndView {
         val cookie = WebUtils.getCookie(request, "jws")
 
         if (cookie != null) {
             return try {
+                val params: MutableMap<String, String> = mutableMapOf()
                 params["jws"] = cookie.value
                 val response = getUserDetails(params)
                 val wiuser = response.body
-                model["title"] = TITLE_WALLET
+                model["title"] = viewTitle
                 model["username"] = wiuser!!.username
-                model["id"] = wiuser.id.toString()
-                ModelAndView("wallet", model)
+                ModelAndView(viewName, model)
             } catch (e: Exception) {
                 errorView(WRONG_AUTH_BAD_TOKEN, attributes)
             }

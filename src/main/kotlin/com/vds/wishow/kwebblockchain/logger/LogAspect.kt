@@ -20,7 +20,7 @@ class LogAspect {
         val url = extractUrlFrom(joinPoint)
 
         val httpVerb = extractHttpVerb(joinPoint)
-        val toLog = "$httpVerb on $resource.$method() - requestMapping: $url"
+        val toLog = "Verb: [$httpVerb] method: [$resource.$method()] url: [$url] -"
         val result = try {
             joinPoint.proceed()
         } catch (throwable: Throwable) {
@@ -28,12 +28,19 @@ class LogAspect {
             throw throwable
         }
         val duration = System.currentTimeMillis() - start
-        logger.info("$toLog, duration: $duration ms - return: $result")
+        logger.info("$toLog duration: [$duration ms] - return: $result")
         return result
     }
 
-    private fun extractHttpVerb(joinPoint: ProceedingJoinPoint) =
-        (joinPoint.signature as MethodSignature).method.annotations.first().annotationClass.simpleName
+    private fun extractHttpVerb(joinPoint: ProceedingJoinPoint): String {
+        return (joinPoint.signature as MethodSignature)
+            .method
+            .annotations
+            .first()
+            .annotationClass
+            .simpleName!!
+            .substringBefore("Mapping")
+    }
 
     private fun extractUrlFrom(joinPoint: ProceedingJoinPoint): String {
         return (joinPoint.signature as MethodSignature)
