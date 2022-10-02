@@ -1,64 +1,82 @@
 package com.vds.wishow.kwebblockchain.api
 
-import com.vds.wishow.kwebblockchain.bootstrap.Utils.HOME_TITLE
-import com.vds.wishow.kwebblockchain.bootstrap.Utils.LOGIN_TITLE
-import com.vds.wishow.kwebblockchain.bootstrap.Utils.REGISTER_TITLE
+import com.vds.wishow.kwebblockchain.bootstrap.Utils.TITLE_HOME
+import com.vds.wishow.kwebblockchain.bootstrap.Utils.TITLE_LOGIN
+import com.vds.wishow.kwebblockchain.bootstrap.Utils.TITLE_REGISTER
+import com.vds.wishow.kwebblockchain.bootstrap.Utils.TITLE_WALLET
+import com.vds.wishow.kwebblockchain.bootstrap.Utils.URL_AUTH_TOKEN
+import com.vds.wishow.kwebblockchain.bootstrap.Utils.URL_AUTH_USER
 import com.vds.wishow.kwebblockchain.bootstrap.Utils.USER_NOT_FOUND
+import com.vds.wishow.kwebblockchain.bootstrap.Utils.WRONG_AUTH_TOKEN
 import com.vds.wishow.kwebblockchain.bootstrap.Utils.hash
-import com.vds.wishow.kwebblockchain.logger.LoggerAOP
 import com.vds.wishow.kwebblockchain.model.Wiuser
 import com.vds.wishow.kwebblockchain.service.WiuserService
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
+import org.springframework.web.bind.annotation.CookieValue
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.client.RestTemplate
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
+import org.springframework.web.util.WebUtils
+import javax.servlet.http.Cookie
+import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
 
 @Controller
 @RequestMapping("/blockchain")
 class WiuserResource(val service: WiuserService) {
 
-    @LoggerAOP
     @GetMapping("/")
     fun index(model: MutableMap<String, Any>): ModelAndView {
         return ModelAndView("redirect:login")
     }
 
-    @LoggerAOP
     @GetMapping("/login")
     fun showLogin(model: MutableMap<String, Any>): ModelAndView {
-        model["title"] = LOGIN_TITLE
+        model["title"] = TITLE_LOGIN
         return ModelAndView("login", model)
     }
 
-    @LoggerAOP
     @PostMapping("/login")
-    fun handleLogin(@RequestParam email: String, @RequestParam password: String, attributes: RedirectAttributes, model: MutableMap<String, Any>): ModelAndView {
+    fun handleLogin(
+        @RequestParam email: String,
+        @RequestParam password: String,
+        attributes: RedirectAttributes,
+        model: MutableMap<String, Any>,
+        response: HttpServletResponse
+    ): ModelAndView {
         val hashedUserEmail = hash("SHA-512", email)
         val hashedUserPassword = hash("SHA-512", password)
         val wiuser = service.findBy(hashedUserEmail, hashedUserPassword)
 
         return if (wiuser != null) {
-            attributes.addFlashAttribute("title", HOME_TITLE)
+            val params: MutableMap<String, Long> = mutableMapOf()
+            params["id"] = wiuser.id!!
+            val result = getUserToken(params)
+            val jws = result.body
+            val cookie = Cookie("jws", jws)
+            cookie.isHttpOnly = true // browser can't read the cookie, just for the backend
+            response.addCookie(cookie)
+
             attributes.addFlashAttribute("username", wiuser.username)
             ModelAndView("redirect:home")
         } else {
             model["errorMessage"] = USER_NOT_FOUND
-            model["title"] = LOGIN_TITLE
-            return ModelAndView("login", model)
+            model["title"] = TITLE_LOGIN
+            ModelAndView("login", model)
         }
     }
 
-    @LoggerAOP
     @GetMapping("/register")
     fun showRegister(model: MutableMap<String, Any>): ModelAndView {
-        model["title"] = REGISTER_TITLE
+        model["title"] = TITLE_REGISTER
         return ModelAndView("register", model)
     }
 
-    @LoggerAOP
     @PostMapping("/register")
     fun handleRegister(@RequestParam email: String, @RequestParam password: String, @RequestParam username: String): ModelAndView {
         service.save(
@@ -71,9 +89,57 @@ class WiuserResource(val service: WiuserService) {
         return ModelAndView("redirect:login")
     }
 
-    @LoggerAOP
     @GetMapping("/home")
-    fun home(model: MutableMap<String, Any>): ModelAndView {
+    fun home(request: HttpServletRequest, model: MutableMap<String, Any>): ModelAndView {
+        if (!model.containsKey("username")) {
+            val params: MutableMap<String, String> = mutableMapOf()
+            val cookie = WebUtils.getCookie(request, "jws")
+
+            if (cookie != null) {
+                params["jws"] = cookie.value
+                val response = getUserDetails(params)
+                if (response.statusCode == HttpStatus.BAD_REQUEST) {
+                    return errorView(WRONG_AUTH_TOKEN)
+                }
+                val wiuser = response.body
+                model["username"] = wiuser!!.username
+            } else {
+                return errorView(WRONG_AUTH_TOKEN)
+            }
+        }
+        model["title"] = TITLE_HOME
         return ModelAndView("home", model)
+    }
+
+    @GetMapping("/wallet")
+    fun wallet(@CookieValue jws: String, model: MutableMap<String, Any>): ModelAndView {
+        val params: MutableMap<String, String> = mutableMapOf()
+        params["jws"] = jws
+        val response = getUserDetails(params)
+        val wiuser = response.body
+
+        return if (wiuser != null && response.statusCode == HttpStatus.OK) {
+            model["title"] = TITLE_WALLET
+            model["username"] = wiuser.username
+            model["id"] = wiuser.id.toString()
+            ModelAndView("wallet", model)
+        } else {
+            model["errorMessage"] = WRONG_AUTH_TOKEN
+            model["title"] = WRONG_AUTH_TOKEN
+            ModelAndView("error", model)
+        }
+    }
+
+    private fun getUserToken(params: MutableMap<String, Long>) =
+        RestTemplate().getForEntity("$URL_AUTH_TOKEN/{id}", String::class.java, params)
+
+    private fun getUserDetails(params: MutableMap<String, String>) =
+        RestTemplate().getForEntity("$URL_AUTH_USER/{jws}", Wiuser::class.java, params)
+
+    private fun errorView(message: String): ModelAndView {
+        val model: MutableMap<String, Any> = mutableMapOf()
+        model["errorMessage"] = message
+        model["title"] = message
+        return ModelAndView("error", model)
     }
 }

@@ -1,13 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
-    var tooltips = document.querySelectorAll('.tooltipped');
-    var tooltipsOptions = {
-        'enterDelay': 500,
-        'margin': 2
-    };
-    var tooltipsOptionsInstances = M.Tooltip.init(tooltips, tooltipsOptions);
+    initTooltips();
+    initCharacterCounter();
 
-    var textNeedCount = document.querySelectorAll('#register_username, #register_password1, #register_password2');
-    M.CharacterCounter.init(textNeedCount);
 
     var password2 = document.getElementById("register_password2");
     password2.addEventListener('focusout', (event) => {
@@ -16,6 +10,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
     showErrorMessage();
 });
+
+function initTooltips() {
+    var tooltips = document.querySelectorAll('.tooltipped');
+    var tooltipsOptions = {
+        'enterDelay': 500,
+        'margin': 2
+    };
+    var tooltipsOptionsInstances = M.Tooltip.init(tooltips, tooltipsOptions);
+}
+
+function initCharacterCounter() {
+    var textNeedCount = document.querySelectorAll('.register_values');
+    M.CharacterCounter.init(textNeedCount);
+}
 
 function validateData(event) {
     var email = document.querySelector('#email').value;
