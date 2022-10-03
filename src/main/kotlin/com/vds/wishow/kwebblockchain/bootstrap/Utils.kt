@@ -1,10 +1,6 @@
 package com.vds.wishow.kwebblockchain.bootstrap
 
-import io.jsonwebtoken.Jwts
 import java.security.MessageDigest
-import java.security.PrivateKey
-import java.util.Date
-
 
 object Utils {
     const val USER_NOT_FOUND = "User not found - wrong email and/or password"
@@ -26,36 +22,5 @@ object Utils {
             .getInstance(algorithm)
             .digest(stringToHash.toByteArray())
             .fold("") { acc, byte -> acc + "%02x".format(byte) }
-    }
-
-    fun generateJWS(privateKey: PrivateKey, issuer: String): String {
-        return Jwts
-            .builder()
-            .setIssuer(issuer)
-            .setExpiration(Date(System.currentTimeMillis() + ONE_DAY))
-            .signWith(privateKey)
-            .compact()
-    }
-
-    fun verifyJWSAndExtractIssuer(jws: String, privateKey: PrivateKey): Long? {
-        return try {
-            Jwts
-                .parserBuilder()
-                .setSigningKey(privateKey)
-                .build()
-                .parse(jws)
-                .body
-                .toString()
-                .extractIssuerFromBody()
-        } catch (e: Exception) {
-            null
-        }
-    }
-
-    private fun String.extractIssuerFromBody(): Long {
-        return this
-            .substringAfter("iss=")
-            .substringBefore(",")
-            .toLong()
     }
 }

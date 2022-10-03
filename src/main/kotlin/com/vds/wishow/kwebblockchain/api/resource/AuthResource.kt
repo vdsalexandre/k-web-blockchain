@@ -1,7 +1,8 @@
 package com.vds.wishow.kwebblockchain.api.resource
 
-import com.vds.wishow.kwebblockchain.bootstrap.Utils.generateJWS
-import com.vds.wishow.kwebblockchain.bootstrap.Utils.verifyJWSAndExtractIssuer
+import com.vds.wishow.kwebblockchain.bootstrap.JwsUtils.extractIssuer
+import com.vds.wishow.kwebblockchain.bootstrap.JwsUtils.generateJWS
+import com.vds.wishow.kwebblockchain.bootstrap.JwsUtils.verifyJWS
 import com.vds.wishow.kwebblockchain.domain.service.WiuserService
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
@@ -22,18 +23,20 @@ class AuthResource(val service: WiuserService) {
 
     @GetMapping("/user/{jws}")
     fun userDetails(@PathVariable jws: String?): ResponseEntity<Any> {
-        if (jws != null) {
-            val issuer = verifyJWSAndExtractIssuer(jws, keyPair.private)
-            if (issuer != null) {
-                return ResponseEntity.ok(service.findById(issuer))
-            }
-            return ResponseEntity<Any>("User not found", HttpStatus.NOT_FOUND)
+        if (jws != null && verifyJWS(keyPair.private, jws)) {
+            val issuer = extractIssuer(keyPair.private, jws)
+            return ResponseEntity.ok(service.findById(issuer))
         }
         return ResponseEntity<Any>("JWT signature does not match locally computed signature", HttpStatus.UNAUTHORIZED)
     }
 
     @GetMapping("/token/{id}")
     fun userToken(@PathVariable id: Long, response: HttpServletResponse): ResponseEntity<String> {
-        return ResponseEntity.ok(generateJWS(keyPair.private, "$id"))
+        val wiuser = service.findById(id)
+
+        return if (wiuser != null)
+            ResponseEntity.ok(generateJWS(keyPair.private, wiuser))
+        else
+            ResponseEntity("User not found", HttpStatus.NOT_FOUND)
     }
 }
