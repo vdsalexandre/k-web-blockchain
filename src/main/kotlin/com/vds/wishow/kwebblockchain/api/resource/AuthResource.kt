@@ -1,5 +1,6 @@
 package com.vds.wishow.kwebblockchain.api.resource
 
+import com.vds.wishow.kwebblockchain.api.dto.WiuserDTO.Companion.toWiuserDTO
 import com.vds.wishow.kwebblockchain.bootstrap.JwsUtils.extractIssuer
 import com.vds.wishow.kwebblockchain.bootstrap.JwsUtils.generateJWS
 import com.vds.wishow.kwebblockchain.bootstrap.JwsUtils.verifyJWS
@@ -25,9 +26,14 @@ class AuthResource(val service: WiuserService) {
     fun userDetails(@PathVariable jws: String?): ResponseEntity<Any> {
         if (jws != null && verifyJWS(keyPair.private, jws)) {
             val issuer = extractIssuer(keyPair.private, jws)
-            return ResponseEntity.ok(service.findById(issuer))
+            val wiuser = service.findById(issuer)
+
+            return if (wiuser != null)
+                ResponseEntity.ok(wiuser.toWiuserDTO())
+            else
+                ResponseEntity("User not found - Invalid token", HttpStatus.NOT_FOUND)
         }
-        return ResponseEntity<Any>("JWT signature does not match locally computed signature", HttpStatus.UNAUTHORIZED)
+        return ResponseEntity("JWT signature does not match locally computed signature", HttpStatus.UNAUTHORIZED)
     }
 
     @GetMapping("/token/{id}")
@@ -35,7 +41,7 @@ class AuthResource(val service: WiuserService) {
         val wiuser = service.findById(id)
 
         return if (wiuser != null)
-            ResponseEntity.ok(generateJWS(keyPair.private, wiuser))
+            ResponseEntity.ok(generateJWS(keyPair.private, wiuser.toWiuserDTO()))
         else
             ResponseEntity("User not found", HttpStatus.NOT_FOUND)
     }

@@ -11,6 +11,4 @@ data class Wiuser(
     val username: String,
     val email: String,
     val password: String
-) {
-    override fun toString() = "Wiuser(id=$id, username=$username, email=********, password=********)"
-}
+)

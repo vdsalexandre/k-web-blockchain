@@ -1,24 +1,25 @@
 package com.vds.wishow.kwebblockchain.api.resource
 
+import com.google.gson.Gson
 import com.vds.wishow.kwebblockchain.api.dto.UserLoginDTO
 import com.vds.wishow.kwebblockchain.api.dto.UserRegisterDTO
+import com.vds.wishow.kwebblockchain.api.dto.WiuserDTO
+import com.vds.wishow.kwebblockchain.bootstrap.Utils.ERROR_USER_NOT_FOUND
+import com.vds.wishow.kwebblockchain.bootstrap.Utils.ERROR_USER_NOT_LOGGED
 import com.vds.wishow.kwebblockchain.bootstrap.Utils.TITLE_HOME
 import com.vds.wishow.kwebblockchain.bootstrap.Utils.TITLE_LOGIN
 import com.vds.wishow.kwebblockchain.bootstrap.Utils.TITLE_REGISTER
 import com.vds.wishow.kwebblockchain.bootstrap.Utils.TITLE_WALLET
 import com.vds.wishow.kwebblockchain.bootstrap.Utils.URL_AUTH_TOKEN
 import com.vds.wishow.kwebblockchain.bootstrap.Utils.URL_AUTH_USER
-import com.vds.wishow.kwebblockchain.bootstrap.Utils.USER_NOT_FOUND
-import com.vds.wishow.kwebblockchain.bootstrap.Utils.WRONG_AUTH_BAD_TOKEN
-import com.vds.wishow.kwebblockchain.bootstrap.Utils.WRONG_AUTH_NOT_LOGGED
 import com.vds.wishow.kwebblockchain.bootstrap.Utils.hash
 import com.vds.wishow.kwebblockchain.domain.model.Wiuser
 import com.vds.wishow.kwebblockchain.domain.service.WiuserService
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
@@ -62,7 +63,7 @@ class WiuserResource(val service: WiuserService) {
             attributes.addFlashAttribute("username", wiuser.username)
             ModelAndView("redirect:home")
         } else {
-            model["errorMessage"] = USER_NOT_FOUND
+            model["errorMessage"] = ERROR_USER_NOT_FOUND
             model["title"] = TITLE_LOGIN
             ModelAndView("login", model)
         }
@@ -75,9 +76,13 @@ class WiuserResource(val service: WiuserService) {
     }
 
     @PostMapping("/register")
-    fun handleRegister(userRegisterDTO: UserRegisterDTO, @RequestParam username: String): ModelAndView {
+    fun handleRegister(userRegisterDTO: UserRegisterDTO): ModelAndView {
         service.save(
-            Wiuser(email = hash(userRegisterDTO.email), password = hash(userRegisterDTO.password), username = username)
+            Wiuser(
+                email = hash(userRegisterDTO.email),
+                password = hash(userRegisterDTO.password),
+                username = userRegisterDTO.username
+            )
         )
         return ModelAndView("redirect:login")
     }
@@ -116,28 +121,35 @@ class WiuserResource(val service: WiuserService) {
         viewTitle: String,
     ): ModelAndView {
         val cookie = WebUtils.getCookie(request, "jws")
+        val response: ResponseEntity<Any>
 
         if (cookie != null) {
             return try {
                 val params: MutableMap<String, String> = mutableMapOf()
                 params["jws"] = cookie.value
-                val response = getUserDetails(params)
-                val wiuser = response.body
-                model["title"] = viewTitle
-                model["username"] = wiuser!!.username
-                ModelAndView(viewName, model)
+                response = getUserDetails(params)
+
+                if (response.statusCodeValue == 200) {
+                    val wiuserDTO = Gson().fromJson("${response.body}", WiuserDTO::class.java)
+                    model["title"] = viewTitle
+                    model["username"] = wiuserDTO.username
+                    model["id"] = wiuserDTO.id
+                    ModelAndView(viewName, model)
+                } else {
+                    errorView("${response.statusCodeValue}: ${response.statusCode}", attributes)
+                }
             } catch (e: Exception) {
-                errorView(WRONG_AUTH_BAD_TOKEN, attributes)
+                errorView(e.message!!, attributes)
             }
         }
-        return errorView(WRONG_AUTH_NOT_LOGGED, attributes)
+        return errorView(ERROR_USER_NOT_LOGGED, attributes)
     }
 
-    private fun getUserToken(params: MutableMap<String, Long>) =
+    private fun getUserToken(params: MutableMap<String, Long>): ResponseEntity<String> =
         RestTemplate().getForEntity("$URL_AUTH_TOKEN/{id}", String::class.java, params)
 
-    private fun getUserDetails(params: MutableMap<String, String>) =
-        RestTemplate().getForEntity("$URL_AUTH_USER/{jws}", Wiuser::class.java, params)
+    private fun getUserDetails(params: MutableMap<String, String>): ResponseEntity<Any> =
+        RestTemplate().getForEntity("$URL_AUTH_USER/{jws}", Any::class.java, params)
 
     private fun errorView(message: String, attributes: RedirectAttributes): ModelAndView {
         attributes.addFlashAttribute("errorMessage", message)

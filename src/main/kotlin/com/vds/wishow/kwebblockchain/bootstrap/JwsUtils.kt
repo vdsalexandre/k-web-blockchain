@@ -1,6 +1,6 @@
 package com.vds.wishow.kwebblockchain.bootstrap
 
-import com.vds.wishow.kwebblockchain.domain.model.Wiuser
+import com.vds.wishow.kwebblockchain.api.dto.WiuserDTO
 import io.jsonwebtoken.Jwts
 import java.security.PrivateKey
 import java.time.Instant
@@ -9,7 +9,7 @@ import java.util.Date
 
 object JwsUtils {
 
-    fun generateJWS(privateKey: PrivateKey, wiuser: Wiuser): String {
+    fun generateJWS(privateKey: PrivateKey, wiuser: WiuserDTO): String {
         return Jwts
             .builder()
             .setIssuer(wiuser.id.toString())
