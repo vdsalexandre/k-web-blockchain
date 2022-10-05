@@ -1,3 +1,5 @@
+html { visibility: hidden; }
+
 .container {
     width: 60% !important;
 }
@@ -19,4 +21,27 @@
     float: none !important;
     margin-left: auto;
     margin-right: auto;
+}
+
+.dark-mode {
+    background-color: #120D16 !important;
+    color: white !important;
+    caret-color: white !important;
+}
+
+body {
+    background-color: #eceff1;
+    color: black;
+    caret-color: black;
+}
+
+.lever {
+    background: -webkit-linear-gradient(left, rgb(39, 142, 116) 0%, rgb(99, 253, 136) 100%) !important;
+}
+
+.switch {
+    display: inline-block !important;
+    margin-left: 3% !important;
+    margin-bottom: 30px !important;
+    vertical-align: 7px !important;
 }

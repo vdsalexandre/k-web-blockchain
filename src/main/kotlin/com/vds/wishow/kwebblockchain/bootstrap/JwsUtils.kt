@@ -13,7 +13,6 @@ object JwsUtils {
         return Jwts
             .builder()
             .setIssuer(wiuser.id.toString())
-            .setSubject(wiuser.username)
             .setExpiration(Date.from(Instant.now().plus(5, ChronoUnit.MINUTES)))
             .signWith(privateKey)
             .compact()

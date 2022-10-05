@@ -1,7 +1,7 @@
 {{> parts/header }}
-    <body>
+    <body class="dark-mode">
         <div class="container">
-            <h2 class="center-align">Wicoin blockchain</h2>
+            {{> parts/title }}
             <div class="row">
                 <div class="col s12">
                     <div class="row">
@@ -11,7 +11,7 @@
                         <form class="col s4 m8 l12" method="post" action="login">
                             <div class="row">
                                 <div class="col s12">
-                                    <div class="input-field col s12 l6">
+                                    <div class="input-field col s12 l5">
                                         <input id="email"
                                                type="email"
                                                name="email"
@@ -24,7 +24,7 @@
                             </div>
                             <div class="row">
                                 <div class="col s12">
-                                    <div class="input-field col s12 l6">
+                                    <div class="input-field col s12 l5">
                                         <input id="password"
                                                type="password"
                                                name="password"
@@ -36,11 +36,15 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
+                            <div class="row center-align">
                                 <div class="col s12">
-                                    <div class="input-field col s12 l6 offset-l5 offset-s3">
-                                        <button class="btn waves-effect waves-light"
+                                    <div class="input-field col s12 l5">
+                                        <button id="login-submit-button"
+                                                class="btn waves-effect waves-light tooltipped"
+                                                style="visibility: hidden;"
                                                 type="submit"
+                                                data-position="top"
+                                                data-tooltip="Login into personal account"
                                                 onclick="validateData(event)">Login
                                             <i class="material-icons right">send</i>
                                         </button>
@@ -51,13 +55,14 @@
                     </div>
                     <div class="row center-align">
                         <div class="col s6">
-                            <a
-                                    class="btn green darken-4 tooltipped"
-                                    href="register"
-                                    data-position="top"
-                                    data-tooltip="Not registered yet ? Click here">Register
-                                <i class="material-icons right">contact_mail</i>
-                            </a>
+                            <div class="input-field col s12 l5">
+                                <a class="btn green darken-4 tooltipped"
+                                        href="register"
+                                        data-position="top"
+                                        data-tooltip="Not registered yet ? Click here">Register
+                                    <i class="material-icons right">contact_mail</i>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>

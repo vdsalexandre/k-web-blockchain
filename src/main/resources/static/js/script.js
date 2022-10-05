@@ -1,27 +1,35 @@
+const DARK_MODE_COOKIE = "mode=dark; path=/blockchain;";
+const LIGHT_MODE_COOKIE = "mode=light; path=/blockchain;";
+
 document.addEventListener('DOMContentLoaded', function() {
     initTooltips();
     initCharacterCounter();
     initFocusOutRegisterPassword();
     showErrorMessage();
+    initModeCookie();
+});
+
+window.addEventListener('load', function() {
+    showHtml();
 });
 
 function initTooltips() {
-    var tooltips = document.querySelectorAll('.tooltipped');
-    var tooltipsOptions = {
+    let tooltips = document.querySelectorAll('.tooltipped');
+    let tooltipsOptions = {
         'enterDelay': 500,
         'margin': 2
     };
-    var tooltipsOptionsInstances = M.Tooltip.init(tooltips, tooltipsOptions);
+    let tooltipsOptionsInstances = M.Tooltip.init(tooltips, tooltipsOptions);
 }
 
 function initCharacterCounter() {
-    var textNeedCount = document.querySelectorAll('.register_values');
+    let textNeedCount = document.querySelectorAll('.register_values');
     M.CharacterCounter.init(textNeedCount);
 }
 
 function validateData(event) {
-    var email = document.querySelector('#email').value;
-    var password = document.querySelector('#password').value;
+    let email = document.querySelector('#email').value;
+    let password = document.querySelector('#password').value;
 
     if (!email || !password) {
         event.preventDefault();
@@ -30,7 +38,7 @@ function validateData(event) {
 }
 
 function showErrorMessage() {
-    var errorInput = document.querySelector('#error-message');
+    let errorInput = document.querySelector('#error-message');
 
     if (errorInput && errorInput.value) {
         M.toast({html: errorInput.value, displayLength: 3500});
@@ -39,9 +47,9 @@ function showErrorMessage() {
 }
 
 function validatePassword() {
-    var password1 = document.getElementById("register_password1");
-    var password2 = document.getElementById("register_password2");
-    var span = document.getElementById("register_password2_span");
+    let password1 = document.getElementById("register_password1");
+    let password2 = document.getElementById("register_password2");
+    let span = document.getElementById("register_password2_span");
 
     if (password1.value !== password2.value) {
         password2.dataset.error = "The two passwords aren't identical !";
@@ -53,11 +61,37 @@ function validatePassword() {
 }
 
 function initFocusOutRegisterPassword() {
-    var password2 = document.getElementById("register_password2");
+    let password2 = document.getElementById("register_password2");
 
     if (password2) {
         password2.addEventListener('focusout', (event) => {
             validatePassword()
         });
     }
+}
+
+function toggleSwitchMode() {
+    let isDarkMode = document.body.classList.toggle("dark-mode");
+
+    if (isDarkMode)
+        document.cookie = DARK_MODE_COOKIE;
+    else
+        document.cookie = LIGHT_MODE_COOKIE;
+}
+
+function initModeCookie() {
+    let cookie = document.cookie;
+
+    if (!cookie) {
+        document.cookie = DARK_MODE_COOKIE;
+    } else {
+        if (cookie === "mode=light") {
+            document.querySelector("#toggle-mode-input").click();
+        }
+    }
+}
+
+function showHtml() {
+    document.getElementsByTagName("html")[0].style.visibility = "visible";
+    document.querySelector("#login-submit-button").style.visibility = "visible";
 }

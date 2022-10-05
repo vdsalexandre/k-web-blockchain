@@ -2,6 +2,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val jjwtVersion: String = "0.11.5"
 val gsonVersion: String = "2.9.1"
+val junitVersion: String = "5.9.0"
+val mockitoVersion: String = "4.8.0"
+val springMockkVersion: String = "3.1.1"
 
 plugins {
 	id("org.springframework.boot") version "2.7.4"
@@ -32,8 +35,9 @@ dependencies {
 	implementation("com.google.code.gson:gson:$gsonVersion")
 
 	compileOnly("io.jsonwebtoken:jjwt-api:$jjwtVersion")
-	runtimeOnly("io.jsonwebtoken:jjwt-impl:$jjwtVersion")
+
 	runtimeOnly("org.bouncycastle:bcprov-jdk15on:1.70")
+	runtimeOnly("io.jsonwebtoken:jjwt-impl:$jjwtVersion")
 	runtimeOnly("io.jsonwebtoken:jjwt-gson:$jjwtVersion")
 
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
@@ -41,6 +45,9 @@ dependencies {
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.security:spring-security-test")
+	testImplementation("org.junit.jupiter:junit-jupiter:$junitVersion")
+	testImplementation("org.mockito:mockito-core:$mockitoVersion")
+	testImplementation("com.ninja-squad:springmockk:$springMockkVersion")
 }
 
 tasks.withType<KotlinCompile> {
