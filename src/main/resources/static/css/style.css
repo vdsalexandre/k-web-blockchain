@@ -33,6 +33,7 @@ body {
     background-color: #eceff1;
     color: black;
     caret-color: black;
+    overflow-x: hidden;
 }
 
 .lever {

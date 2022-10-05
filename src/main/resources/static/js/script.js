@@ -73,10 +73,13 @@ function initFocusOutRegisterPassword() {
 function toggleSwitchMode() {
     let isDarkMode = document.body.classList.toggle("dark-mode");
 
-    if (isDarkMode)
+    if (isDarkMode) {
         document.cookie = DARK_MODE_COOKIE;
-    else
+        updateInputCss("dark");
+    } else {
         document.cookie = LIGHT_MODE_COOKIE;
+        updateInputCss("light");
+    }
 }
 
 function initModeCookie() {
@@ -84,10 +87,13 @@ function initModeCookie() {
 
     if (!cookie) {
         document.cookie = DARK_MODE_COOKIE;
+        updateInputCss("dark");
     } else {
         if (cookie === "mode=light") {
             document.querySelector("#toggle-mode-input").click();
-        }
+            updateInputCss("light");
+        } else
+            updateInputCss("dark");
     }
 }
 
@@ -97,4 +103,12 @@ function showHtml() {
 
     if (submitButton)
         submitButton.style.visibility = "visible";
+}
+
+function updateInputCss(mode) {
+    let textColor = mode === 'dark' ? 'white' : 'black';
+
+    let inputs = document.querySelectorAll('input');
+    for (let i = 0; i < inputs.length; i++)
+        inputs[i].style.color = textColor;
 }
