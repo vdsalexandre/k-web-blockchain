@@ -93,5 +93,8 @@ function initModeCookie() {
 
 function showHtml() {
     document.getElementsByTagName("html")[0].style.visibility = "visible";
-    document.querySelector("#login-submit-button").style.visibility = "visible";
+    let submitButton = document.querySelector("#login-submit-button");
+
+    if (submitButton)
+        submitButton.style.visibility = "visible";
 }

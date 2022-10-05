@@ -1,91 +1,91 @@
 {{> parts/header }}
-    <body>
-    <div class="container">
-        {{> parts/title }}
-        <div class="row">
-            <div class="col s12">
-                <div class="row valign-wrapper">
-                    {{# errorMessage }}
-                        <input id="error-message" type="hidden" value="{{ errorMessage }}">
-                    {{/ errorMessage }}
-                    <form class="col s4 m8 l12" method="post" action="register">
-                        <div class="row">
-                            <div class="col s12">
-                                <div class="input-field col s12 l6">
-                                    <input id="register_username"
-                                           type="text"
-                                           name="username"
-                                           class="validate active register_values"
-                                           minlength="3"
-                                           maxlength="20"
-                                           autofocus
-                                           data-length="20">
-                                    <label for="username">Username</label>
-                                    <span class="helper-text" data-error="Username is too short (between 3 and 20 characters)" data-success="right format"></span>
+    <body class="dark-mode">
+        <div class="container">
+            {{> parts/title }}
+            <div class="row">
+                <div class="col s12">
+                    <div class="row valign-wrapper">
+                        {{# errorMessage }}
+                            <input id="error-message" type="hidden" value="{{ errorMessage }}">
+                        {{/ errorMessage }}
+                        <form class="col s4 m8 l12" method="post" action="register">
+                            <div class="row">
+                                <div class="col s12">
+                                    <div class="input-field col s12 l6">
+                                        <input id="register_username"
+                                               type="text"
+                                               name="username"
+                                               class="validate active register_values"
+                                               minlength="3"
+                                               maxlength="20"
+                                               autofocus
+                                               data-length="20">
+                                        <label for="username">Username</label>
+                                        <span class="helper-text" data-error="Username is too short (between 3 and 20 characters)" data-success="right format"></span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col s12">
-                                <div class="input-field col s12 l6">
-                                    <input id="email"
-                                           type="email"
-                                           name="email"
-                                           class="validate">
-                                    <label for="email">Email</label>
-                                    <span class="helper-text" data-error="Wrong format for an email" data-success="right format"></span>
+                            <div class="row">
+                                <div class="col s12">
+                                    <div class="input-field col s12 l6">
+                                        <input id="email"
+                                               type="email"
+                                               name="email"
+                                               class="validate">
+                                        <label for="email">Email</label>
+                                        <span class="helper-text" data-error="Wrong format for an email" data-success="right format"></span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col s12">
-                                <div class="input-field col s12 l6">
-                                    <input id="register_password1"
-                                           type="password"
-                                           class="validate register_values"
-                                           minlength="12"
-                                           maxlength="40"
-                                           data-length="40">
-                                    <label for="password1">Password</label>
-                                    <span class="helper-text" data-error="Password is too short (between 12 and 40 characters)" data-success="right format"></span>
+                            <div class="row">
+                                <div class="col s12">
+                                    <div class="input-field col s12 l6">
+                                        <input id="register_password1"
+                                               type="password"
+                                               class="validate register_values"
+                                               minlength="12"
+                                               maxlength="40"
+                                               data-length="40">
+                                        <label for="password1">Password</label>
+                                        <span class="helper-text" data-error="Password is too short (between 12 and 40 characters)" data-success="right format"></span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col s12">
-                                <div class="input-field col s12 l6">
-                                    <input id="register_password2"
-                                           type="password"
-                                           name="password"
-                                           class="validate register_values"
-                                           minlength="12"
-                                           maxlength="40"
-                                           data-length="40">
-                                    <label for="password">Confirm password</label>
-                                    <span
-                                            id="register_password2_span"
-                                            class="helper-text"
-                                            data-error="Password is too short (between 12 and 40 characters)"
-                                            data-success="right format">
-                                    </span>
+                            <div class="row">
+                                <div class="col s12">
+                                    <div class="input-field col s12 l6">
+                                        <input id="register_password2"
+                                               type="password"
+                                               name="password"
+                                               class="validate register_values"
+                                               minlength="12"
+                                               maxlength="40"
+                                               data-length="40">
+                                        <label for="password">Confirm password</label>
+                                        <span
+                                                id="register_password2_span"
+                                                class="helper-text"
+                                                data-error="Password is too short (between 12 and 40 characters)"
+                                                data-success="right format">
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col s12">
-                                <div class="input-field col s12 l6 offset-l5 offset-s3">
-                                    <button class="btn waves-effect waves-light"
-                                            type="submit"
-                                            onclick="validateData(event)">Register
-                                        <i class="material-icons right">send</i>
-                                    </button>
+                            <div class="row">
+                                <div class="col s12">
+                                    <div class="input-field col s12 l6 offset-l5 offset-s3">
+                                        <button class="btn waves-effect waves-light"
+                                                type="submit"
+                                                onclick="validateData(event)">Register
+                                            <i class="material-icons right">send</i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
     </body>
 {{> parts/footer }}
