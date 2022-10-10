@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import javax.servlet.http.HttpServletResponse
 
 @RestController
 @RequestMapping("/auth", produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -23,26 +22,26 @@ class AuthResource(val service: WiuserService) {
     private val keyPair = Keys.keyPairFor(SignatureAlgorithm.PS512)
 
     @GetMapping("/user/{jws}")
-    fun userDetails(@PathVariable jws: String?): ResponseEntity<Any> {
-        if (jws != null && verifyJWS(keyPair.private, jws)) {
+    fun userDetails(@PathVariable jws: String): ResponseEntity<Any> {
+        if (verifyJWS(keyPair.private, jws)) {
             val issuer = extractIssuer(keyPair.private, jws)
             val wiuser = service.findById(issuer)
 
             return if (wiuser != null)
                 ResponseEntity.ok(wiuser.toWiuserDTO())
             else
-                ResponseEntity("User not found - Invalid token", HttpStatus.NOT_FOUND)
+                ResponseEntity(HttpStatus.NOT_FOUND.reasonPhrase, HttpStatus.NOT_FOUND)
         }
-        return ResponseEntity("JWT signature does not match locally computed signature", HttpStatus.UNAUTHORIZED)
+        return ResponseEntity(HttpStatus.UNAUTHORIZED.reasonPhrase, HttpStatus.UNAUTHORIZED)
     }
 
     @GetMapping("/token/{id}")
-    fun userToken(@PathVariable id: Long, response: HttpServletResponse): ResponseEntity<String> {
+    fun userToken(@PathVariable id: Long): ResponseEntity<String> {
         val wiuser = service.findById(id)
 
         return if (wiuser != null)
             ResponseEntity.ok(generateJWS(keyPair.private, wiuser.toWiuserDTO()))
         else
-            ResponseEntity("User not found", HttpStatus.NOT_FOUND)
+            ResponseEntity(HttpStatus.NOT_FOUND.reasonPhrase, HttpStatus.NOT_FOUND)
     }
 }
