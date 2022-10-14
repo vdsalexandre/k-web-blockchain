@@ -1,4 +1,4 @@
-package com.vds.wishow.kwebblockchain.logger
+package com.vds.wishow.kwebblockchain.api.logger
 
 import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.annotation.Around

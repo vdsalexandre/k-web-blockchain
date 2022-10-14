@@ -9,8 +9,6 @@ import org.springframework.stereotype.Service
 class WiuserService(val repository: WiuserRepository) {
 
     fun findBy(email: String, password: String): Wiuser? = repository.findByEmailAndPassword(email, password)
-
-    fun save(wiuser: Wiuser) = repository.save(wiuser)
-
+    fun save(wiuser: Wiuser): Wiuser = repository.save(wiuser)
     fun findById(id: Long): Wiuser? = repository.findByIdOrNull(id)
 }

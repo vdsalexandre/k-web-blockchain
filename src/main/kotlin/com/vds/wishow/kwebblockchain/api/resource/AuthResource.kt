@@ -22,7 +22,7 @@ class AuthResource(val service: WiuserService) {
     private val keyPair = Keys.keyPairFor(SignatureAlgorithm.PS512)
 
     @GetMapping("/user/{jws}")
-    fun userDetails(@PathVariable jws: String): ResponseEntity<Any> {
+    fun getUserDetails(@PathVariable jws: String): ResponseEntity<Any> {
         if (verifyJWS(keyPair.private, jws)) {
             val issuer = extractIssuer(keyPair.private, jws)
             val wiuser = service.findById(issuer)
@@ -30,13 +30,13 @@ class AuthResource(val service: WiuserService) {
             return if (wiuser != null)
                 ResponseEntity.ok(wiuser.toWiuserDTO())
             else
-                ResponseEntity(HttpStatus.NOT_FOUND.reasonPhrase, HttpStatus.NOT_FOUND)
+                ResponseEntity(HttpStatus.UNAUTHORIZED.reasonPhrase, HttpStatus.UNAUTHORIZED)
         }
         return ResponseEntity(HttpStatus.UNAUTHORIZED.reasonPhrase, HttpStatus.UNAUTHORIZED)
     }
 
     @GetMapping("/token/{id}")
-    fun userToken(@PathVariable id: Long): ResponseEntity<String> {
+    fun generateUserToken(@PathVariable id: Long): ResponseEntity<String> {
         val wiuser = service.findById(id)
 
         return if (wiuser != null)

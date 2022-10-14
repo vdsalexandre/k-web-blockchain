@@ -13,7 +13,7 @@ object JwsUtils {
         return Jwts
             .builder()
             .setIssuer(wiuser.id.toString())
-            .setExpiration(Date.from(Instant.now().plus(5, ChronoUnit.MINUTES)))
+            .setExpiration(Date.from(Instant.now().plus(1, ChronoUnit.HOURS)))
             .signWith(privateKey)
             .compact()
     }
@@ -31,7 +31,12 @@ object JwsUtils {
 
     fun verifyJWS(privateKey: PrivateKey, jws: String): Boolean {
         return try {
-            Jwts.parserBuilder().setSigningKey(privateKey).build().parseClaimsJws(jws).body
+            Jwts
+                .parserBuilder()
+                .setSigningKey(privateKey)
+                .build()
+                .parseClaimsJws(jws)
+                .body
             true
         } catch (e: Exception) {
             false
