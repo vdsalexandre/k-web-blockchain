@@ -1,3 +1,5 @@
 package com.vds.wishow.kwebblockchain.api.exception
 
-data class ErrorResponse(val errorCode: Int, val errorMessage: String?)
+import org.springframework.http.HttpStatus
+
+data class ErrorResponse(val errorCode: HttpStatus, val errorMessage: String?)

@@ -4,6 +4,7 @@ import com.vds.wishow.kwebblockchain.api.dto.WiuserDTO.Companion.toWiuserDTO
 import com.vds.wishow.kwebblockchain.bootstrap.JwsUtils.extractIssuer
 import com.vds.wishow.kwebblockchain.bootstrap.JwsUtils.generateJWS
 import com.vds.wishow.kwebblockchain.bootstrap.JwsUtils.verifyJWS
+import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.errorResponse
 import com.vds.wishow.kwebblockchain.domain.service.WiuserService
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
@@ -30,18 +31,18 @@ class AuthResource(val service: WiuserService) {
             return if (wiuser != null)
                 ResponseEntity.ok(wiuser.toWiuserDTO())
             else
-                ResponseEntity(HttpStatus.UNAUTHORIZED.reasonPhrase, HttpStatus.UNAUTHORIZED)
+                errorResponse(HttpStatus.UNAUTHORIZED)
         }
-        return ResponseEntity(HttpStatus.UNAUTHORIZED.reasonPhrase, HttpStatus.UNAUTHORIZED)
+        return errorResponse(HttpStatus.UNAUTHORIZED)
     }
 
     @GetMapping("/token/{id}")
-    fun generateUserToken(@PathVariable id: Long): ResponseEntity<String> {
+    fun generateUserToken(@PathVariable id: Long): ResponseEntity<Any> {
         val wiuser = service.findById(id)
 
         return if (wiuser != null)
             ResponseEntity.ok(generateJWS(keyPair.private, wiuser.toWiuserDTO()))
         else
-            ResponseEntity(HttpStatus.NOT_FOUND.reasonPhrase, HttpStatus.NOT_FOUND)
+            errorResponse(HttpStatus.NOT_FOUND)
     }
 }
