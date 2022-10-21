@@ -1,9 +1,9 @@
 package com.vds.wishow.kwebblockchain.api.resource
 
 import com.google.gson.Gson
-import com.vds.wishow.kwebblockchain.api.dto.UserLoginDTO
-import com.vds.wishow.kwebblockchain.api.dto.UserRegisterDTO
 import com.vds.wishow.kwebblockchain.api.dto.WiuserDTO
+import com.vds.wishow.kwebblockchain.api.dto.WiuserLoginDTO
+import com.vds.wishow.kwebblockchain.api.dto.WiuserRegisterDTO
 import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.ERROR_USER_NOT_FOUND
 import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.ERROR_USER_NOT_LOGGED
 import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.TITLE_HOME
@@ -14,7 +14,6 @@ import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.createAuthCookie
 import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.deleteAuthCookie
 import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.getUserDetails
 import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.getUserToken
-import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.hash
 import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.isWiuserConnected
 import com.vds.wishow.kwebblockchain.domain.service.WiuserService
 import org.springframework.http.HttpStatus
@@ -53,16 +52,16 @@ class WiuserResource(val service: WiuserService) {
 
     @PostMapping("/login")
     fun handleLogin(
-        userLoginDTO: UserLoginDTO,
+        wiuserLoginDTO: WiuserLoginDTO,
         attributes: RedirectAttributes,
         model: MutableMap<String, Any>,
         response: HttpServletResponse,
     ): Any {
-        val wiuser = service.findBy(hash(userLoginDTO.email), hash(userLoginDTO.password))
+        val wiuser = service.findWiuser(wiuserLoginDTO)
 
         return if (wiuser != null) {
             val responseEntity = getUserToken(wiuser.id!!)
-            createAuthCookie(response, responseEntity.body as String)
+            createAuthCookie(response, responseEntity.body)
             attributes.addFlashAttribute("username", wiuser.username)
             RedirectView("home")
         } else {
@@ -78,8 +77,8 @@ class WiuserResource(val service: WiuserService) {
     }
 
     @PostMapping("/register")
-    fun handleRegister(userRegisterDTO: UserRegisterDTO): RedirectView {
-        service.save(userRegisterDTO.toDomain())
+    fun handleRegister(wiuserRegisterDTO: WiuserRegisterDTO): RedirectView {
+        service.save(wiuserRegisterDTO.toDomain())
         return RedirectView("login")
     }
 

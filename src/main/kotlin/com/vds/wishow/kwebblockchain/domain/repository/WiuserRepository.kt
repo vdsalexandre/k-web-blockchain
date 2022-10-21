@@ -5,7 +5,4 @@ import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface WiuserRepository : CrudRepository<Wiuser, Long> {
-
-    fun findByEmailAndPassword(email: String, password: String): Wiuser?
-}
+interface WiuserRepository : CrudRepository<Wiuser, Long>

@@ -1,9 +1,10 @@
 package com.vds.wishow.kwebblockchain.bootstrap
 
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestTemplate
-import java.security.MessageDigest
 import javax.servlet.http.Cookie
 import javax.servlet.http.HttpServletResponse
 
@@ -19,15 +20,8 @@ object WiuserUtils {
     private const val URL_AUTH_TOKEN = "http://localhost:9090/auth/token"
     private const val URL_AUTH_USER = "http://localhost:9090/auth/user"
 
-    fun hash(stringToHash: String, algorithm: String = "SHA-512"): String {
-        return MessageDigest
-            .getInstance(algorithm)
-            .digest(stringToHash.toByteArray())
-            .fold("") { acc, byte -> acc + "%02x".format(byte) }
-    }
-
     fun getUserToken(id: Long) =
-        RestTemplate().getForEntity("$URL_AUTH_TOKEN/{id}", Any::class.java, mutableMapOf("id" to id))
+        RestTemplate().getForEntity("$URL_AUTH_TOKEN/{id}", String::class.java, mutableMapOf("id" to id))
 
     fun createAuthCookie(response: HttpServletResponse, body: String?) {
         val cookie = Cookie("jws", body)
@@ -54,6 +48,8 @@ object WiuserUtils {
     }
 
     fun errorResponse(status: HttpStatus): ResponseEntity<Any> {
-        return ResponseEntity("${status.value()} - ${status.reasonPhrase}", status)
+        val headers = HttpHeaders()
+        headers.contentType = MediaType.APPLICATION_JSON
+        return ResponseEntity("${status.value()} - ${status.reasonPhrase}",headers, status)
     }
 }

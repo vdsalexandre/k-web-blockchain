@@ -7,7 +7,6 @@ import com.vds.wishow.kwebblockchain.domain.service.WiuserService
 import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.verify
-import org.hamcrest.CoreMatchers.containsString
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
@@ -80,7 +79,7 @@ class AuthResourceTest(@Autowired val mockMvc: MockMvc) {
         mockMvc.perform(get("/auth/user/jws"))
             .andExpect(status().isUnauthorized)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$").value("Unauthorized"))
+            .andExpect(jsonPath("$").value("${HttpStatus.UNAUTHORIZED.value()} - ${HttpStatus.UNAUTHORIZED.reasonPhrase}"))
 
         verify(exactly = 1) { JwsUtils.verifyJWS(any(), any()) }
         verify(exactly = 1) { JwsUtils.extractIssuer(any(), any()) }
@@ -95,7 +94,7 @@ class AuthResourceTest(@Autowired val mockMvc: MockMvc) {
         mockMvc.perform(get("/auth/user/jws"))
             .andExpect(status().isUnauthorized)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$").value("Unauthorized"))
+            .andExpect(jsonPath("$").value("${HttpStatus.UNAUTHORIZED.value()} - ${HttpStatus.UNAUTHORIZED.reasonPhrase}"))
 
         verify(exactly = 1) { JwsUtils.verifyJWS(any(), any()) }
     }
@@ -105,8 +104,7 @@ class AuthResourceTest(@Autowired val mockMvc: MockMvc) {
         mockMvc.perform(get("/auth/token/toto"))
             .andExpect(status().isBadRequest)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$.errorCode").value(HttpStatus.BAD_REQUEST.value()))
-            .andExpect(jsonPath("$.errorMessage", containsString("400 BAD_REQUEST - Failed to convert value of type 'java.lang.String'")))
+            .andExpect(jsonPath("$").value("${HttpStatus.BAD_REQUEST.value()} - ${HttpStatus.BAD_REQUEST.reasonPhrase}"))
     }
 
     companion object {
