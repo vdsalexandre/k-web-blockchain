@@ -7,5 +7,5 @@ object DataEncoder {
 
     fun encode(data: String): String = bcryptEncoder.encode(data)
 
-    fun matches(encodedString1: String, encodedString2: String) = bcryptEncoder.matches(encodedString1, encodedString2)
+    fun matches(clearString: String, encodedString: String) = bcryptEncoder.matches(clearString, encodedString)
 }

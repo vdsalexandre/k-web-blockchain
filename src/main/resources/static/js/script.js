@@ -1,6 +1,3 @@
-const DARK_MODE_COOKIE = "mode=dark; path=/blockchain;";
-const LIGHT_MODE_COOKIE = "mode=light; path=/blockchain;";
-
 document.addEventListener('DOMContentLoaded', function() {
     initTooltips();
     initCharacterCounter();
@@ -72,28 +69,31 @@ function initFocusOutRegisterPassword() {
 
 function toggleSwitchMode() {
     let isDarkMode = document.body.classList.toggle("dark-mode");
+    let iconMode = document.getElementById("icon-mode");
 
-    if (isDarkMode) {
-        document.cookie = DARK_MODE_COOKIE;
-        updateInputCss("dark");
-    } else {
-        document.cookie = LIGHT_MODE_COOKIE;
-        updateInputCss("light");
-    }
+    let mode = isDarkMode ? 'dark' : 'light';
+    let reverseMode = isDarkMode ? 'light' : 'dark';
+    let addClass = isDarkMode ? 'blue-text' : 'orange-text';
+    let removeClass = isDarkMode ? 'orange-text' : 'blue-text';
+
+    document.cookie = "mode=" + mode + "; path=/blockchain;";
+    iconMode.dataset.tooltip = "Show application in " + reverseMode + " mode"
+    iconMode.innerHTML = reverseMode + "_mode"
+    iconMode.classList.add(addClass)
+    iconMode.classList.remove(removeClass)
+    updateInputCss(mode);
 }
 
 function initModeCookie() {
     let cookie = document.cookie;
 
     if (!cookie) {
-        document.cookie = DARK_MODE_COOKIE;
+        document.cookie = "mode=dark; path=/blockchain;";
         updateInputCss("dark");
     } else {
         if (cookie === "mode=light") {
-            document.querySelector("#toggle-mode-input").click();
-            updateInputCss("light");
-        } else
-            updateInputCss("dark");
+            toggleSwitchMode()
+        }
     }
 }
 
