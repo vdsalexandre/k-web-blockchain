@@ -1,6 +1,5 @@
 package com.vds.wishow.kwebblockchain.bootstrap
 
-import com.vds.wishow.kwebblockchain.api.dto.WiuserDTO
 import io.jsonwebtoken.Jwts
 import java.security.PrivateKey
 import java.time.Instant
@@ -9,10 +8,10 @@ import java.util.Date
 
 object JwsUtils {
 
-    fun generateJWS(privateKey: PrivateKey, wiuser: WiuserDTO): String {
+    fun generateJWS(privateKey: PrivateKey, wiuserId: Long): String {
         return Jwts
             .builder()
-            .setIssuer(wiuser.id.toString())
+            .setIssuer(wiuserId.toString())
             .setExpiration(Date.from(Instant.now().plus(1, ChronoUnit.HOURS)))
             .signWith(privateKey)
             .compact()

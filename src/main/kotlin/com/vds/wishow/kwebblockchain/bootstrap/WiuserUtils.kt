@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse
 
 object WiuserUtils {
     const val ERROR_USER_NOT_FOUND = "User not found - wrong email and/or password"
+    const val ERROR_USER_NOT_EXISTS = "User not exists - you should register before login"
     const val ERROR_USER_NOT_LOGGED = "Authentication failed, you must log-in to access this area"
 
     const val TITLE_LOGIN = "Login - Wicoin Blockchain"
@@ -20,12 +21,9 @@ object WiuserUtils {
     private const val URL_AUTH_TOKEN = "http://localhost:9090/auth/token"
     private const val URL_AUTH_USER = "http://localhost:9090/auth/user"
 
-    fun getUserToken(id: Long) =
-        RestTemplate().getForEntity("$URL_AUTH_TOKEN/{id}", String::class.java, mutableMapOf("id" to id))
-
-    fun createAuthCookie(response: HttpServletResponse, body: String?) {
-        val cookie = Cookie("jws", body)
-        cookie.isHttpOnly = true // browser can't read the cookie, just for the backend
+    fun createAuthCookie(response: HttpServletResponse, token: String) {
+        val cookie = Cookie("jws", token)
+        cookie.isHttpOnly = true
         response.addCookie(cookie)
     }
 
@@ -34,6 +32,9 @@ object WiuserUtils {
         cookie.maxAge = 0
         response.addCookie(cookie)
     }
+
+    fun getUserToken(id: Long) =
+        RestTemplate().getForEntity("$URL_AUTH_TOKEN/{id}", Any::class.java, mutableMapOf("id" to id))
 
     fun getUserDetails(jws: String) =
         RestTemplate().getForEntity("$URL_AUTH_USER/{jws}", Any::class.java, mutableMapOf("jws" to jws))

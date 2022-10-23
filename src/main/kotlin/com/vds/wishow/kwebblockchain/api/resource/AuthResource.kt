@@ -6,6 +6,7 @@ import com.vds.wishow.kwebblockchain.bootstrap.JwsUtils.generateJWS
 import com.vds.wishow.kwebblockchain.bootstrap.JwsUtils.verifyJWS
 import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.errorResponse
 import com.vds.wishow.kwebblockchain.domain.service.WiuserService
+import com.vds.wishow.kwebblockchain.security.AuthToken
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
 import org.springframework.http.HttpStatus
@@ -37,11 +38,11 @@ class AuthResource(val service: WiuserService) {
     }
 
     @GetMapping("/token/{id}")
-    fun generateUserToken(@PathVariable id: Long): ResponseEntity<Any> {
+    fun getUserToken(@PathVariable id: Long): ResponseEntity<Any> {
         val wiuser = service.findById(id)
 
         return if (wiuser != null)
-            ResponseEntity.ok(generateJWS(keyPair.private, wiuser.toWiuserDTO()))
+            ResponseEntity.ok(AuthToken(generateJWS(keyPair.private, wiuser.id!!)))
         else
             errorResponse(HttpStatus.NOT_FOUND)
     }

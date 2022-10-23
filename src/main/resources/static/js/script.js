@@ -92,8 +92,11 @@ function initModeCookie() {
         updateInputCss("dark");
     } else {
         if (cookie === "mode=light") {
-            toggleSwitchMode()
+            toggleSwitchMode();
+            updateInputCss("light");
         }
+        else
+            updateInputCss("dark");
     }
 }
 

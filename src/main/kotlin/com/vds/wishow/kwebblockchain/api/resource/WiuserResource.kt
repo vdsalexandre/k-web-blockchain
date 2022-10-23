@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import com.vds.wishow.kwebblockchain.api.dto.WiuserDTO
 import com.vds.wishow.kwebblockchain.api.dto.WiuserLoginDTO
 import com.vds.wishow.kwebblockchain.api.dto.WiuserRegisterDTO
+import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.ERROR_USER_NOT_EXISTS
 import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.ERROR_USER_NOT_FOUND
 import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.ERROR_USER_NOT_LOGGED
 import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.TITLE_HOME
@@ -16,6 +17,7 @@ import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.getUserDetails
 import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.getUserToken
 import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.isWiuserConnected
 import com.vds.wishow.kwebblockchain.domain.service.WiuserService
+import com.vds.wishow.kwebblockchain.security.AuthToken
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
@@ -61,11 +63,19 @@ class WiuserResource(val service: WiuserService) {
 
         return if (wiuser != null) {
             val responseEntity = getUserToken(wiuser.id!!)
-            createAuthCookie(response, responseEntity.body)
-            attributes.addFlashAttribute("username", wiuser.username)
-            RedirectView("home")
+            if (responseEntity.statusCode == HttpStatus.OK) {
+                val gson = Gson()
+                val jws = gson.fromJson(responseEntity.body.toString(), AuthToken::class.java).jws
+                createAuthCookie(response, jws)
+                attributes.addFlashAttribute("username", wiuser.username)
+                RedirectView("home")
+            } else {
+                model["errorMessage"] = ERROR_USER_NOT_FOUND
+                model["title"] = TITLE_LOGIN
+                ModelAndView("login", model)
+            }
         } else {
-            model["errorMessage"] = ERROR_USER_NOT_FOUND
+            model["errorMessage"] = ERROR_USER_NOT_EXISTS
             model["title"] = TITLE_LOGIN
             ModelAndView("login", model)
         }
