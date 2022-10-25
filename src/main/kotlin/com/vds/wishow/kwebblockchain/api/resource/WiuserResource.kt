@@ -4,12 +4,13 @@ import com.google.gson.Gson
 import com.vds.wishow.kwebblockchain.api.dto.WiuserDTO
 import com.vds.wishow.kwebblockchain.api.dto.WiuserLoginDTO
 import com.vds.wishow.kwebblockchain.api.dto.WiuserRegisterDTO
-import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.ERROR_USER_NOT_FOUND
-import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.ERROR_USER_NOT_LOGGED
-import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.TITLE_HOME
-import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.TITLE_LOGIN
-import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.TITLE_REGISTER
-import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.TITLE_WALLET
+import com.vds.wishow.kwebblockchain.bootstrap.Variables.ERROR_USER_NOT_EXISTS
+import com.vds.wishow.kwebblockchain.bootstrap.Variables.ERROR_USER_NOT_FOUND
+import com.vds.wishow.kwebblockchain.bootstrap.Variables.ERROR_USER_NOT_LOGGED
+import com.vds.wishow.kwebblockchain.bootstrap.Variables.TITLE_HOME
+import com.vds.wishow.kwebblockchain.bootstrap.Variables.TITLE_LOGIN
+import com.vds.wishow.kwebblockchain.bootstrap.Variables.TITLE_REGISTER
+import com.vds.wishow.kwebblockchain.bootstrap.Variables.TITLE_WALLET
 import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.createAuthCookie
 import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.deleteAuthCookie
 import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.getUserDetails
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import org.springframework.web.servlet.view.RedirectView
@@ -58,16 +60,22 @@ class WiuserResource(val service: WiuserService) {
         model: MutableMap<String, Any>,
         response: HttpServletResponse,
     ): Any {
-        val responseEntity = getUserToken(wiuserLoginDTO)
+        return try {
+            val responseEntity = getUserToken(wiuserLoginDTO)
 
-        return if (responseEntity.statusCode == HttpStatus.OK) {
-            val gson = Gson()
-            val authResponse = gson.fromJson(responseEntity.body.toString(), AuthResponse::class.java)
-            createAuthCookie(response, authResponse.jws)
-            attributes.addFlashAttribute("username", authResponse.username)
-            RedirectView("home")
-        } else {
-            model["errorMessage"] = ERROR_USER_NOT_FOUND
+             if (responseEntity.statusCode == HttpStatus.OK) {
+                val gson = Gson()
+                val authResponse = gson.fromJson(responseEntity.body.toString(), AuthResponse::class.java)
+                createAuthCookie(response, authResponse.jws)
+                attributes.addFlashAttribute("username", authResponse.username)
+                RedirectView("home")
+            } else {
+                model["errorMessage"] = ERROR_USER_NOT_FOUND
+                model["title"] = TITLE_LOGIN
+                ModelAndView("login", model)
+            }
+        } catch (e: HttpClientErrorException) {
+            model["errorMessage"] = ERROR_USER_NOT_EXISTS
             model["title"] = TITLE_LOGIN
             ModelAndView("login", model)
         }
