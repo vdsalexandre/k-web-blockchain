@@ -1,25 +1,21 @@
 {{> parts/header }}
     <body class="dark-mode">
-        {{> parts/title }}
-        <h3>Welcome <span>{{ username }} <i class="material-icons green-text">verified_user</i></span></h3>
-        <h4>What do you want to do ?</h4>
-        <ul>
-            <li>Create a new wallet</li>
-            <li>Send / Receive wicoins</li>
-            <li>
-                <form class="col s4 m8 l12" method="post" action="logout">
-                    <div class="row">
-                        <div class="col s12">
-                            <div class="input-field col s12 l6 offset-l5 offset-s3">
-                                <button class="btn waves-effect waves-light"
-                                        type="submit">Logout
-                                    <i class="material-icons right">input</i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </li>
-        </ul>
+        <div class="container">
+            {{> parts/title }}
+            <div class="row">
+                <div class="col s8">
+                    <h4 class="center-align">Welcome
+                        <span class="user-span">
+                            {{ username }} <i class="material-icons green-text">verified_user</i>
+                        </span>
+                    </h4>
+                    <ul>
+                        <li>Your wallet</li>
+                        <li>Transactions history</li>
+                    </ul>
+                    {{> parts/logout }}
+                </div>
+            </div>
+        </div>
     </body>
 {{> parts/footer }}

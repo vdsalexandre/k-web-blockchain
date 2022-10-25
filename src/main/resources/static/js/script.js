@@ -109,9 +109,15 @@ function showHtml() {
 }
 
 function updateInputCss(mode) {
+    let userSpan = document.querySelector('.user-span');
     let textColor = mode === 'dark' ? 'white' : 'black';
 
     let inputs = document.querySelectorAll('input');
     for (let i = 0; i < inputs.length; i++)
         inputs[i].style.color = textColor;
+
+    if (mode === 'dark')
+        userSpan.style.color = "#A9EAFE";
+    else
+        userSpan.style.color = "#1E7FCB";
 }
