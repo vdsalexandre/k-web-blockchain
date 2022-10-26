@@ -4,11 +4,16 @@ document.addEventListener('DOMContentLoaded', function() {
     initFocusOutRegisterPassword();
     showErrorMessage();
     initModeCookie();
+    handlePreloader('hide');
 });
 
 window.addEventListener('load', function() {
     showHtml();
 });
+
+function handlePreloader(action) {
+    document.getElementById('preloader').style.display = (action === 'show') ? 'inline-block' : 'none';
+}
 
 function initTooltips() {
     let tooltips = document.querySelectorAll('.tooltipped');
@@ -25,6 +30,8 @@ function initCharacterCounter() {
 }
 
 function validateData(event) {
+    handlePreloader('show');
+
     let email = document.querySelector('#email').value;
     let password = document.querySelector('#password').value;
 
@@ -109,15 +116,17 @@ function showHtml() {
 }
 
 function updateInputCss(mode) {
-    let userSpan = document.querySelector('.user-span');
     let textColor = mode === 'dark' ? 'white' : 'black';
 
     let inputs = document.querySelectorAll('input');
     for (let i = 0; i < inputs.length; i++)
         inputs[i].style.color = textColor;
 
-    if (mode === 'dark')
-        userSpan.style.color = "#A9EAFE";
-    else
-        userSpan.style.color = "#1E7FCB";
+    let userSpan = document.querySelector('.user-span');
+    if (userSpan) {
+        if (mode === 'dark')
+            userSpan.style.color = "#A9EAFE";
+        else
+            userSpan.style.color = "#1E7FCB";
+    }
 }

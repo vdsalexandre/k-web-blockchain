@@ -46,3 +46,11 @@ body {
     margin-bottom: 30px !important;
     vertical-align: -10px !important;
 }
+
+#preloader {
+    position: absolute;
+    display: none;
+    top: 250px;
+    left: 48%;
+    z-index: 100;
+}
