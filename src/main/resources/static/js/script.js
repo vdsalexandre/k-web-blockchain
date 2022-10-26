@@ -30,15 +30,14 @@ function initCharacterCounter() {
 }
 
 function validateData(event) {
-    handlePreloader('show');
-
     let email = document.querySelector('#email').value;
     let password = document.querySelector('#password').value;
 
     if (!email || !password) {
         event.preventDefault();
         M.toast({html: "Email and password can't be empty !", displayLength: 3500});
-    }
+    } else
+        handlePreloader('show');
 }
 
 function showErrorMessage() {
