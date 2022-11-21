@@ -1,6 +1,7 @@
 package com.vds.wishow.kwebblockchain.api.resource
 
 import com.google.gson.Gson
+import com.vds.wishow.kwebblockchain.api.dto.WalletDTO.Companion.toDto
 import com.vds.wishow.kwebblockchain.api.dto.WiuserDTO
 import com.vds.wishow.kwebblockchain.api.dto.WiuserLoginDTO
 import com.vds.wishow.kwebblockchain.api.dto.WiuserRegisterDTO
@@ -16,6 +17,8 @@ import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.deleteAuthCookie
 import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.getUserDetails
 import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.getUserToken
 import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.isWiuserConnected
+import com.vds.wishow.kwebblockchain.domain.model.Wallet
+import com.vds.wishow.kwebblockchain.domain.service.WalletService
 import com.vds.wishow.kwebblockchain.domain.service.WiuserService
 import com.vds.wishow.kwebblockchain.security.AuthResponse
 import org.springframework.http.HttpStatus
@@ -33,7 +36,7 @@ import javax.servlet.http.HttpServletResponse
 
 @Controller
 @RequestMapping("/blockchain")
-class WiuserResource(val service: WiuserService) {
+class WiuserResource(val wiuserService: WiuserService, val walletService: WalletService) {
 
     @GetMapping("/**")
     fun redirect(request: HttpServletRequest): RedirectView {
@@ -63,7 +66,7 @@ class WiuserResource(val service: WiuserService) {
         return try {
             val responseEntity = getUserToken(wiuserLoginDTO)
 
-             if (responseEntity.statusCode == HttpStatus.OK) {
+            if (responseEntity.statusCode == HttpStatus.OK) {
                 val gson = Gson()
                 val authResponse = gson.fromJson(responseEntity.body.toString(), AuthResponse::class.java)
                 createAuthCookie(response, authResponse.jws)
@@ -88,7 +91,7 @@ class WiuserResource(val service: WiuserService) {
 
     @PostMapping("/register")
     fun handleRegister(wiuserRegisterDTO: WiuserRegisterDTO): RedirectView {
-        service.save(wiuserRegisterDTO.toDomain())
+        wiuserService.save(wiuserRegisterDTO.toDomain())
         return RedirectView("login")
     }
 
@@ -108,12 +111,50 @@ class WiuserResource(val service: WiuserService) {
     }
 
     @GetMapping("/wallet")
-    fun wallet(
+    fun showWallet(
         request: HttpServletRequest,
         model: MutableMap<String, Any>,
         attributes: RedirectAttributes
     ): ModelAndView {
         return handleGetMapping(request, model, attributes, "wallet", TITLE_WALLET)
+    }
+
+    @PostMapping("/wallet/new")
+    fun createWallet(
+        request: HttpServletRequest,
+        model: MutableMap<String, Any>,
+        attributes: RedirectAttributes
+    ): ModelAndView {
+        val cookie = WebUtils.getCookie(request, "jws")
+
+        if (cookie != null) {
+            return try {
+                val response = getUserDetails(cookie.value)
+
+                if (response.statusCode == HttpStatus.OK) {
+                    val wiuserDTO = Gson().fromJson("${response.body}", WiuserDTO::class.java)
+                    model["title"] = TITLE_WALLET
+                    model["username"] = wiuserDTO.username
+                    model["id"] = wiuserDTO.id
+                    if (wiuserDTO.wallet != null) {
+                        model["walletid"] = wiuserDTO.wallet.walletId
+                        model["walletbalance"] = wiuserDTO.wallet.balance
+                    } else {
+                        val newWallet = Wallet(wiuserId = wiuserDTO.id)
+                        walletService.save(newWallet)
+                        val walletDto = newWallet.toDto()
+                        model["walletid"] = walletDto.walletId
+                        model["walletbalance"] = walletDto.balance
+                    }
+                    ModelAndView("wallet", model)
+                } else {
+                    errorView("${response.statusCodeValue}: ${response.statusCode}", attributes)
+                }
+            } catch (e: Exception) {
+                errorView(e.message!!, attributes)
+            }
+        }
+        return errorView(ERROR_USER_NOT_LOGGED, attributes)
     }
 
     private fun handleGetMapping(
@@ -134,6 +175,10 @@ class WiuserResource(val service: WiuserService) {
                     model["title"] = viewTitle
                     model["username"] = wiuserDTO.username
                     model["id"] = wiuserDTO.id
+                    if (wiuserDTO.wallet != null) {
+                        model["walletid"] = wiuserDTO.wallet.walletId
+                        model["walletbalance"] = wiuserDTO.wallet.balance
+                    }
                     ModelAndView(viewName, model)
                 } else {
                     errorView("${response.statusCodeValue}: ${response.statusCode}", attributes)

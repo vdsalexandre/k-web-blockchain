@@ -1,11 +1,13 @@
 package com.vds.wishow.kwebblockchain.api.resource
 
-import com.vds.wishow.kwebblockchain.api.dto.WiuserDTO.Companion.toWiuserDTO
+import com.vds.wishow.kwebblockchain.api.dto.WalletDTO.Companion.toDtoOrNull
+import com.vds.wishow.kwebblockchain.api.dto.WiuserDTO
 import com.vds.wishow.kwebblockchain.api.dto.WiuserLoginDTO
 import com.vds.wishow.kwebblockchain.bootstrap.JwsUtils.extractIssuer
 import com.vds.wishow.kwebblockchain.bootstrap.JwsUtils.generateJWS
 import com.vds.wishow.kwebblockchain.bootstrap.JwsUtils.verifyJWS
 import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.errorResponse
+import com.vds.wishow.kwebblockchain.domain.service.WalletService
 import com.vds.wishow.kwebblockchain.domain.service.WiuserService
 import com.vds.wishow.kwebblockchain.security.AuthResponse
 import io.jsonwebtoken.SignatureAlgorithm
@@ -22,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/auth", produces = [MediaType.APPLICATION_JSON_VALUE])
-class AuthResource(val service: WiuserService) {
+class AuthResource(val wiuserService: WiuserService, val walletService: WalletService) {
 
     private val keyPair = Keys.keyPairFor(SignatureAlgorithm.PS512)
 
@@ -30,11 +32,12 @@ class AuthResource(val service: WiuserService) {
     fun getUserDetails(@PathVariable jws: String): ResponseEntity<Any> {
         if (verifyJWS(keyPair.private, jws)) {
             val issuer = extractIssuer(keyPair.private, jws)
-            val wiuser = service.findById(issuer)
+            val wiuser = wiuserService.findById(issuer)
 
-            return if (wiuser != null)
-                ResponseEntity.ok(wiuser.toWiuserDTO())
-            else
+            return if (wiuser != null) {
+                val wallet = walletService.findByWiuserId(wiuser.id!!)
+                ResponseEntity.ok(WiuserDTO(wiuser.id, wiuser.username, wallet.toDtoOrNull()))
+            } else
                 errorResponse(HttpStatus.UNAUTHORIZED)
         }
         return errorResponse(HttpStatus.UNAUTHORIZED)
@@ -42,7 +45,7 @@ class AuthResource(val service: WiuserService) {
 
     @PostMapping("/token")
     fun getUserToken(@RequestBody wiuserLoginDTO: WiuserLoginDTO): ResponseEntity<Any> {
-        val wiuser = service.findWiuser(wiuserLoginDTO)
+        val wiuser = wiuserService.findWiuser(wiuserLoginDTO)
 
         return if (wiuser != null)
             ResponseEntity.ok(AuthResponse(generateJWS(keyPair.private, wiuser.id!!), wiuser.username))
