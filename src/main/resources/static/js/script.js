@@ -79,8 +79,8 @@ function toggleSwitchMode() {
 
     let mode = isDarkMode ? 'dark' : 'light';
     let reverseMode = isDarkMode ? 'light' : 'dark';
-    let addClass = isDarkMode ? 'blue-text' : 'orange-text';
-    let removeClass = isDarkMode ? 'orange-text' : 'blue-text';
+    let addClass = isDarkMode ? 'orange-text' : 'blue-text';
+    let removeClass = isDarkMode ? 'blue-text' : 'orange-text';
 
     document.cookie = "mode=" + mode + "; path=/blockchain;";
     iconMode.dataset.tooltip = "Show application in " + reverseMode + " mode"

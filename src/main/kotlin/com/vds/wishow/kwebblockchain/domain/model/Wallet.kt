@@ -10,7 +10,7 @@ import javax.persistence.Id
 
 @Entity
 data class Wallet(
-    @Id val walletId: String = "WICOIN" + hash(),
+    @Id val walletId: String = "WIC" + hash(),
     var publicKey: PublicKey? = null,
     private var privateKey: PrivateKey? = null,
     var wiuserId: Long? = null
