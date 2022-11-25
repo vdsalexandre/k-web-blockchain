@@ -1,7 +1,7 @@
 package com.vds.wishow.kwebblockchain.domain.model
 
-import com.vds.wishow.kwebblockchain.bootstrap.HashUtils.hash
 import com.vds.wishow.kwebblockchain.domain.bootstrap.BlockchainUtils.generateKeyPair
+import com.vds.wishow.kwebblockchain.domain.bootstrap.BlockchainUtils.hash
 import java.math.BigDecimal
 import java.security.PrivateKey
 import java.security.PublicKey
@@ -13,7 +13,7 @@ data class Wallet(
     @Id val walletId: String = "WIC" + hash(),
     var publicKey: PublicKey? = null,
     private var privateKey: PrivateKey? = null,
-    var wiuserId: Long? = null
+    var wiuserId: Long
 ) {
     init {
         val keyPair = generateKeyPair()

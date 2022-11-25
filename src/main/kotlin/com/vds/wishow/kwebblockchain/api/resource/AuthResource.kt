@@ -3,10 +3,10 @@ package com.vds.wishow.kwebblockchain.api.resource
 import com.vds.wishow.kwebblockchain.api.dto.WalletDTO.Companion.toDtoOrNull
 import com.vds.wishow.kwebblockchain.api.dto.WiuserDTO
 import com.vds.wishow.kwebblockchain.api.dto.WiuserLoginDTO
-import com.vds.wishow.kwebblockchain.bootstrap.JwsUtils.extractIssuer
-import com.vds.wishow.kwebblockchain.bootstrap.JwsUtils.generateJWS
-import com.vds.wishow.kwebblockchain.bootstrap.JwsUtils.verifyJWS
-import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.errorResponse
+import com.vds.wishow.kwebblockchain.bootstrap.AuthUtils.extractIssuer
+import com.vds.wishow.kwebblockchain.bootstrap.AuthUtils.generateJWS
+import com.vds.wishow.kwebblockchain.bootstrap.AuthUtils.verifyJWS
+import com.vds.wishow.kwebblockchain.bootstrap.ErrorUtils.errorResponse
 import com.vds.wishow.kwebblockchain.domain.service.WalletService
 import com.vds.wishow.kwebblockchain.domain.service.WiuserService
 import com.vds.wishow.kwebblockchain.security.AuthResponse
@@ -30,17 +30,17 @@ class AuthResource(val wiuserService: WiuserService, val walletService: WalletSe
 
     @GetMapping("/user/{jws}")
     fun getUserDetails(@PathVariable jws: String): ResponseEntity<Any> {
-        if (verifyJWS(keyPair.private, jws)) {
+        return if (verifyJWS(keyPair.private, jws)) {
             val issuer = extractIssuer(keyPair.private, jws)
             val wiuser = wiuserService.findById(issuer)
 
-            return if (wiuser != null) {
+            if (wiuser != null) {
                 val wallet = walletService.findByWiuserId(wiuser.id!!)
                 ResponseEntity.ok(WiuserDTO(wiuser.id, wiuser.username, wallet.toDtoOrNull()))
             } else
                 errorResponse(HttpStatus.UNAUTHORIZED)
-        }
-        return errorResponse(HttpStatus.UNAUTHORIZED)
+        } else
+            errorResponse(HttpStatus.UNAUTHORIZED)
     }
 
     @PostMapping("/token")

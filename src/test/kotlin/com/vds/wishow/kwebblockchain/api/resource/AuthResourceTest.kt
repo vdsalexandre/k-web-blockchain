@@ -1,7 +1,7 @@
 package com.vds.wishow.kwebblockchain.api.resource
 
 import com.ninjasquad.springmockk.MockkBean
-import com.vds.wishow.kwebblockchain.bootstrap.JwsUtils
+import com.vds.wishow.kwebblockchain.bootstrap.AuthUtils
 import com.vds.wishow.kwebblockchain.domain.model.Wiuser
 import com.vds.wishow.kwebblockchain.domain.service.WiuserService
 import io.mockk.every
@@ -53,9 +53,9 @@ class AuthResourceTest(@Autowired val mockMvc: MockMvc) {
         val jws = "123456789"
         val id = 1L
 
-        mockkObject(JwsUtils)
-        every { JwsUtils.verifyJWS(any(), jws) } returns true
-        every { JwsUtils.extractIssuer(any(), jws) } returns id
+        mockkObject(AuthUtils)
+        every { AuthUtils.verifyJWS(any(), jws) } returns true
+        every { AuthUtils.extractIssuer(any(), jws) } returns id
         every { service.findById(id) } returns expectedWiuser
 
         mockMvc.perform(get("/auth/user/$jws"))
@@ -64,16 +64,16 @@ class AuthResourceTest(@Autowired val mockMvc: MockMvc) {
             .andExpect(jsonPath("$.id").value(1))
             .andExpect(jsonPath("$.username").value("marty.mcfly"))
 
-        verify(exactly = 1) { JwsUtils.verifyJWS(any(), jws) }
-        verify(exactly = 1) { JwsUtils.extractIssuer(any(), jws) }
+        verify(exactly = 1) { AuthUtils.verifyJWS(any(), jws) }
+        verify(exactly = 1) { AuthUtils.extractIssuer(any(), jws) }
         verify(exactly = 1) { service.findById(id) }
     }
 
     @Test
     fun `should retrieve 401 unauthorized not found if JWS given belongs to another wiuser id`() {
-        mockkObject(JwsUtils)
-        every { JwsUtils.verifyJWS(any(), any()) } returns true
-        every { JwsUtils.extractIssuer(any(), any()) } returns -1
+        mockkObject(AuthUtils)
+        every { AuthUtils.verifyJWS(any(), any()) } returns true
+        every { AuthUtils.extractIssuer(any(), any()) } returns -1
         every { service.findById(-1) } returns null
 
         mockMvc.perform(get("/auth/user/jws"))
@@ -81,22 +81,22 @@ class AuthResourceTest(@Autowired val mockMvc: MockMvc) {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$").value("${HttpStatus.UNAUTHORIZED.value()} - ${HttpStatus.UNAUTHORIZED.reasonPhrase}"))
 
-        verify(exactly = 1) { JwsUtils.verifyJWS(any(), any()) }
-        verify(exactly = 1) { JwsUtils.extractIssuer(any(), any()) }
+        verify(exactly = 1) { AuthUtils.verifyJWS(any(), any()) }
+        verify(exactly = 1) { AuthUtils.extractIssuer(any(), any()) }
         verify(exactly = 1) { service.findById(any()) }
     }
 
     @Test
     fun `should retrieve 401 unauthorized message if JWS given is not valid`() {
-        mockkObject(JwsUtils)
-        every { JwsUtils.verifyJWS(any(), any()) } returns false
+        mockkObject(AuthUtils)
+        every { AuthUtils.verifyJWS(any(), any()) } returns false
 
         mockMvc.perform(get("/auth/user/jws"))
             .andExpect(status().isUnauthorized)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$").value("${HttpStatus.UNAUTHORIZED.value()} - ${HttpStatus.UNAUTHORIZED.reasonPhrase}"))
 
-        verify(exactly = 1) { JwsUtils.verifyJWS(any(), any()) }
+        verify(exactly = 1) { AuthUtils.verifyJWS(any(), any()) }
     }
 
     @Test

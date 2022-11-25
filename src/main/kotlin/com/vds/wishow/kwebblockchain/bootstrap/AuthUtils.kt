@@ -1,12 +1,15 @@
 package com.vds.wishow.kwebblockchain.bootstrap
 
 import io.jsonwebtoken.Jwts
+import org.springframework.http.HttpStatus
 import java.security.PrivateKey
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.Date
+import javax.servlet.http.Cookie
+import javax.servlet.http.HttpServletResponse
 
-object JwsUtils {
+object AuthUtils {
 
     fun generateJWS(privateKey: PrivateKey, wiuserId: Long): String {
         return Jwts
@@ -37,6 +40,27 @@ object JwsUtils {
                 .parseClaimsJws(jws)
                 .body
             true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    fun createAuthCookie(response: HttpServletResponse, token: String) {
+        val cookie = Cookie("jws", token)
+        cookie.isHttpOnly = true
+        response.addCookie(cookie)
+    }
+
+    fun deleteAuthCookie(response: HttpServletResponse) {
+        val cookie = Cookie("jws", "")
+        cookie.maxAge = 0
+        response.addCookie(cookie)
+    }
+
+    fun isWiuserConnected(cookie: Cookie): Boolean {
+        return try {
+            val response = WiuserUtils.getUserDetails(cookie.value)
+            response.statusCode == HttpStatus.OK
         } catch (e: Exception) {
             false
         }

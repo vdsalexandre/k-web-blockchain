@@ -5,6 +5,10 @@ import com.vds.wishow.kwebblockchain.api.dto.WalletDTO.Companion.toDto
 import com.vds.wishow.kwebblockchain.api.dto.WiuserDTO
 import com.vds.wishow.kwebblockchain.api.dto.WiuserLoginDTO
 import com.vds.wishow.kwebblockchain.api.dto.WiuserRegisterDTO
+import com.vds.wishow.kwebblockchain.bootstrap.AuthUtils.createAuthCookie
+import com.vds.wishow.kwebblockchain.bootstrap.AuthUtils.deleteAuthCookie
+import com.vds.wishow.kwebblockchain.bootstrap.AuthUtils.isWiuserConnected
+import com.vds.wishow.kwebblockchain.bootstrap.ErrorUtils.errorView
 import com.vds.wishow.kwebblockchain.bootstrap.Variables.ERROR_USER_NOT_EXISTS
 import com.vds.wishow.kwebblockchain.bootstrap.Variables.ERROR_USER_NOT_FOUND
 import com.vds.wishow.kwebblockchain.bootstrap.Variables.ERROR_USER_NOT_LOGGED
@@ -12,11 +16,8 @@ import com.vds.wishow.kwebblockchain.bootstrap.Variables.TITLE_HOME
 import com.vds.wishow.kwebblockchain.bootstrap.Variables.TITLE_LOGIN
 import com.vds.wishow.kwebblockchain.bootstrap.Variables.TITLE_REGISTER
 import com.vds.wishow.kwebblockchain.bootstrap.Variables.TITLE_WALLET
-import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.createAuthCookie
-import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.deleteAuthCookie
 import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.getUserDetails
 import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.getUserToken
-import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.isWiuserConnected
 import com.vds.wishow.kwebblockchain.domain.model.Wallet
 import com.vds.wishow.kwebblockchain.domain.service.WalletService
 import com.vds.wishow.kwebblockchain.domain.service.WiuserService
@@ -188,11 +189,5 @@ class WiuserResource(val wiuserService: WiuserService, val walletService: Wallet
             }
         }
         return errorView(ERROR_USER_NOT_LOGGED, attributes)
-    }
-
-    private fun errorView(message: String, attributes: RedirectAttributes): ModelAndView {
-        attributes.addFlashAttribute("errorMessage", message)
-        attributes.addFlashAttribute("title", message)
-        return ModelAndView("redirect:error")
     }
 }
