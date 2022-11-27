@@ -19,6 +19,10 @@ class WiuserService(val repository: WiuserRepository) {
             }
     }
 
-    fun save(wiuser: Wiuser): Wiuser = repository.save(wiuser)
+    fun save(wiuser: Wiuser): Wiuser {
+        if (wiuser.username.isEmpty()) throw IllegalArgumentException("Error - one or more fields are missing")
+
+        return repository.save(wiuser)
+    }
     fun findById(id: Long): Wiuser? = repository.findByIdOrNull(id)
 }

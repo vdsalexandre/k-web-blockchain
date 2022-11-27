@@ -108,10 +108,13 @@ function initModeCookie() {
 
 function showHtml() {
     document.getElementsByTagName("html")[0].style.visibility = "visible";
-    let submitButton = document.querySelector("#login-submit-button");
+    let loginSubmitButton = document.querySelector("#login-submit-button");
+    let logoutSubmitButton = document.querySelector("#logout-submit-button");
+    let createWalletSubmitButton = document.querySelector("#create-wallet-submit-button");
 
-    if (submitButton)
-        submitButton.style.visibility = "visible";
+    if (loginSubmitButton) loginSubmitButton.style.visibility = "visible";
+    if (logoutSubmitButton) logoutSubmitButton.style.visibility = "visible";
+    if (createWalletSubmitButton) createWalletSubmitButton.style.visibility = "visible";
 }
 
 function updateInputCss(mode) {

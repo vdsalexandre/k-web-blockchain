@@ -120,7 +120,7 @@ class WiuserResource(val wiuserService: WiuserService, val walletService: Wallet
         return handleGetMapping(request, model, attributes, "wallet", TITLE_WALLET)
     }
 
-    @PostMapping("/wallet/new")
+    @PostMapping("/wallet")
     fun createWallet(
         request: HttpServletRequest,
         model: MutableMap<String, Any>,

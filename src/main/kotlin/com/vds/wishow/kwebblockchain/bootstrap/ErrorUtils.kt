@@ -15,9 +15,9 @@ object ErrorUtils {
         return ModelAndView("redirect:error")
     }
 
-    fun errorResponse(status: HttpStatus): ResponseEntity<Any> {
+    fun errorResponse(status: HttpStatus, errorMessage: String? = null): ResponseEntity<Any> {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
-        return ResponseEntity("${status.value()} - ${status.reasonPhrase}", headers, status)
+        return ResponseEntity("${status.value()} - ${status.reasonPhrase} $errorMessage", headers, status)
     }
 }

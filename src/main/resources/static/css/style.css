@@ -36,10 +36,6 @@ body {
     overflow-x: hidden;
 }
 
-.lever {
-    background: -webkit-linear-gradient(left, rgb(39, 142, 116) 0%, rgb(99, 253, 136) 100%) !important;
-}
-
 .switch {
     display: inline-block !important;
     margin-left: 3% !important;

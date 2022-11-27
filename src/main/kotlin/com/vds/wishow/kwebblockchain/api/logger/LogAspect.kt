@@ -15,12 +15,13 @@ class LogAspect {
     @Around("execution(* com.vds.wishow.kwebblockchain.api.resource.*.*(..))")
     fun logExecution(joinPoint: ProceedingJoinPoint): Any {
         val start = System.currentTimeMillis()
-        val resource = joinPoint.signature.declaringTypeName.split(".").last()
-        val method = joinPoint.signature.name
-        val url = extractUrlFrom(joinPoint)
+        val toLog = Log(
+            resource = extractResourceFrom(joinPoint),
+            method = joinPoint.signature.name,
+            url = extractUrlFrom(joinPoint),
+            httpVerb = extractHttpVerb(joinPoint)
+        )
 
-        val httpVerb = extractHttpVerb(joinPoint)
-        val toLog = "Verb: [$httpVerb] method: [$resource.$method()] url: [$url] -"
         val result = try {
             joinPoint.proceed()
         } catch (throwable: Throwable) {
@@ -30,6 +31,14 @@ class LogAspect {
         val duration = System.currentTimeMillis() - start
         logger.info("$toLog duration: [$duration ms] - return: $result")
         return result
+    }
+
+    private fun extractResourceFrom(joinPoint: ProceedingJoinPoint): String {
+        return joinPoint
+            .signature
+            .declaringTypeName
+            .split(".")
+            .last()
     }
 
     private fun extractHttpVerb(joinPoint: ProceedingJoinPoint): String {

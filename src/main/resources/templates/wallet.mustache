@@ -9,26 +9,12 @@
                         </span>
             </h4>
             {{# walletid }}
-                {{# walletbalance }}
-                    <h5 class="center-align">Wallet {{ walletid }} : {{ walletbalance }} Wicoins </h5>
-                {{/ walletbalance }}
+                <h5 class="center-align">Wallet address: {{ walletid }}</h5>
+                <h6 class="center-align">{{ walletbalance }} Wicoins</h6>
             {{/ walletid }}
-
-            <div class="col s6">
-                <form method="post" action="wallet/new">
-                    <div class="row">
-                        <div class="col s12">
-                            <div class="center-align">
-                                <button class="btn waves-effect waves-light"
-                                        type="submit">Create
-                                    <i class="material-icons right">account_balance_wallet</i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-
+            {{^ walletid }}
+                {{> parts/new-wallet }}
+            {{/walletid}}
             <ul>
                 <li>
                     <div class="row center-align">
@@ -37,7 +23,7 @@
                                 <a class="btn tooltipped"
                                    href="home"
                                    data-position="top"
-                                   data-tooltip="Check your wallet">Home
+                                   data-tooltip="Go home">Home
                                     <i class="material-icons right">home</i>
                                 </a>
                             </div>
