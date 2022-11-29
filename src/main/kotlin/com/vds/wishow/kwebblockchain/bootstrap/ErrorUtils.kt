@@ -20,4 +20,11 @@ object ErrorUtils {
         headers.contentType = MediaType.APPLICATION_JSON
         return ResponseEntity("${status.value()} - ${status.reasonPhrase} $errorMessage", headers, status)
     }
+
+    fun viewWithErrorMessage(viewName: String, viewTitle: String, errorMessage: String): ModelAndView {
+        val model: MutableMap<String, String> = mutableMapOf()
+        model["title"] = viewTitle
+        model["errorMessage"] = errorMessage
+        return ModelAndView(viewName, model)
+    }
 }

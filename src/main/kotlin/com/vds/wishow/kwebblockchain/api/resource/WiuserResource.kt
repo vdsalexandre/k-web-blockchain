@@ -9,6 +9,7 @@ import com.vds.wishow.kwebblockchain.bootstrap.AuthUtils.createAuthCookie
 import com.vds.wishow.kwebblockchain.bootstrap.AuthUtils.deleteAuthCookie
 import com.vds.wishow.kwebblockchain.bootstrap.AuthUtils.isWiuserConnected
 import com.vds.wishow.kwebblockchain.bootstrap.ErrorUtils.errorView
+import com.vds.wishow.kwebblockchain.bootstrap.ErrorUtils.viewWithErrorMessage
 import com.vds.wishow.kwebblockchain.bootstrap.Variables.ERROR_USER_NOT_EXISTS
 import com.vds.wishow.kwebblockchain.bootstrap.Variables.ERROR_USER_NOT_FOUND
 import com.vds.wishow.kwebblockchain.bootstrap.Variables.ERROR_USER_NOT_LOGGED
@@ -23,6 +24,7 @@ import com.vds.wishow.kwebblockchain.domain.service.WalletService
 import com.vds.wishow.kwebblockchain.domain.service.WiuserService
 import com.vds.wishow.kwebblockchain.security.AuthResponse
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -41,7 +43,7 @@ class WiuserResource(val wiuserService: WiuserService, val walletService: Wallet
 
     @GetMapping("/**")
     fun redirect(request: HttpServletRequest): RedirectView {
-        val cookie = WebUtils.getCookie(request, "jws")
+        val cookie = getJwsCookie(request)
 
         return if (cookie != null) {
             if (isWiuserConnected(cookie))
@@ -58,30 +60,20 @@ class WiuserResource(val wiuserService: WiuserService, val walletService: Wallet
     }
 
     @PostMapping("/login")
-    fun handleLogin(
-        wiuserLoginDTO: WiuserLoginDTO,
-        attributes: RedirectAttributes,
-        model: MutableMap<String, Any>,
-        response: HttpServletResponse,
-    ): Any {
+    fun handleLogin(wiuserLoginDTO: WiuserLoginDTO, attributes: RedirectAttributes, response: HttpServletResponse): Any {
         return try {
             val responseEntity = getUserToken(wiuserLoginDTO)
 
             if (responseEntity.statusCode == HttpStatus.OK) {
-                val gson = Gson()
-                val authResponse = gson.fromJson(responseEntity.body.toString(), AuthResponse::class.java)
-                createAuthCookie(response, authResponse.jws)
-                attributes.addFlashAttribute("username", authResponse.username)
+                val body = extractBody(responseEntity, AuthResponse::class.java)
+                createAuthCookie(response, body.jws)
+                attributes.addFlashAttribute("username", body.username)
                 RedirectView("home")
             } else {
-                model["errorMessage"] = ERROR_USER_NOT_FOUND
-                model["title"] = TITLE_LOGIN
-                ModelAndView("login", model)
+                viewWithErrorMessage("login", TITLE_LOGIN, ERROR_USER_NOT_FOUND)
             }
         } catch (e: HttpClientErrorException) {
-            model["errorMessage"] = ERROR_USER_NOT_EXISTS
-            model["title"] = TITLE_LOGIN
-            ModelAndView("login", model)
+            viewWithErrorMessage("login", TITLE_LOGIN, ERROR_USER_NOT_EXISTS)
         }
     }
 
@@ -103,51 +95,46 @@ class WiuserResource(val wiuserService: WiuserService, val walletService: Wallet
     }
 
     @GetMapping("/home")
-    fun home(
-        request: HttpServletRequest,
-        model: MutableMap<String, Any>,
-        attributes: RedirectAttributes
-    ): ModelAndView {
-        return handleGetMapping(request, model, attributes, "home", TITLE_HOME)
+    fun home(request: HttpServletRequest, attributes: RedirectAttributes): ModelAndView {
+        return handleRequest(request, attributes, "home", TITLE_HOME)
     }
 
     @GetMapping("/wallet")
-    fun showWallet(
-        request: HttpServletRequest,
-        model: MutableMap<String, Any>,
-        attributes: RedirectAttributes
-    ): ModelAndView {
-        return handleGetMapping(request, model, attributes, "wallet", TITLE_WALLET)
+    fun showWallet(request: HttpServletRequest, attributes: RedirectAttributes): ModelAndView {
+        return handleRequest(request, attributes, "wallet", TITLE_WALLET)
     }
 
     @PostMapping("/wallet")
-    fun createWallet(
-        request: HttpServletRequest,
-        model: MutableMap<String, Any>,
-        attributes: RedirectAttributes
-    ): ModelAndView {
-        val cookie = WebUtils.getCookie(request, "jws")
+    fun createWallet(request: HttpServletRequest, attributes: RedirectAttributes): ModelAndView {
+        return handleRequest(request, attributes, "wallet", TITLE_WALLET, "new-wallet")
+    }
+
+    private fun handleRequest(request: HttpServletRequest, attributes: RedirectAttributes, view: String, title: String, action: String = ""): ModelAndView {
+        val model: MutableMap<String, Any> = mutableMapOf()
+        val cookie = getJwsCookie(request)
 
         if (cookie != null) {
             return try {
                 val response = getUserDetails(cookie.value)
 
                 if (response.statusCode == HttpStatus.OK) {
-                    val wiuserDTO = Gson().fromJson("${response.body}", WiuserDTO::class.java)
-                    model["title"] = TITLE_WALLET
+                    val wiuserDTO = extractBody(response, WiuserDTO::class.java)
+                    model["title"] = title
                     model["username"] = wiuserDTO.username
                     model["id"] = wiuserDTO.id
                     if (wiuserDTO.wallet != null) {
                         model["walletid"] = wiuserDTO.wallet.walletId
                         model["walletbalance"] = wiuserDTO.wallet.balance
                     } else {
-                        val newWallet = Wallet(wiuserId = wiuserDTO.id)
-                        walletService.save(newWallet)
-                        val walletDto = newWallet.toDto()
-                        model["walletid"] = walletDto.walletId
-                        model["walletbalance"] = walletDto.balance
+                        if (action == "new-wallet") {
+                            val newWallet = Wallet(wiuserId = wiuserDTO.id)
+                            walletService.save(newWallet)
+                            val walletDto = newWallet.toDto()
+                            model["walletid"] = walletDto.walletId
+                            model["walletbalance"] = walletDto.balance
+                        }
                     }
-                    ModelAndView("wallet", model)
+                    ModelAndView(view, model)
                 } else {
                     errorView("${response.statusCodeValue}: ${response.statusCode}", attributes)
                 }
@@ -158,36 +145,10 @@ class WiuserResource(val wiuserService: WiuserService, val walletService: Wallet
         return errorView(ERROR_USER_NOT_LOGGED, attributes)
     }
 
-    private fun handleGetMapping(
-        request: HttpServletRequest,
-        model: MutableMap<String, Any>,
-        attributes: RedirectAttributes,
-        viewName: String,
-        viewTitle: String,
-    ): ModelAndView {
-        val cookie = WebUtils.getCookie(request, "jws")
-
-        if (cookie != null) {
-            return try {
-                val response = getUserDetails(cookie.value)
-
-                if (response.statusCode == HttpStatus.OK) {
-                    val wiuserDTO = Gson().fromJson("${response.body}", WiuserDTO::class.java)
-                    model["title"] = viewTitle
-                    model["username"] = wiuserDTO.username
-                    model["id"] = wiuserDTO.id
-                    if (wiuserDTO.wallet != null) {
-                        model["walletid"] = wiuserDTO.wallet.walletId
-                        model["walletbalance"] = wiuserDTO.wallet.balance
-                    }
-                    ModelAndView(viewName, model)
-                } else {
-                    errorView("${response.statusCodeValue}: ${response.statusCode}", attributes)
-                }
-            } catch (e: Exception) {
-                errorView(e.message!!, attributes)
-            }
-        }
-        return errorView(ERROR_USER_NOT_LOGGED, attributes)
+    private fun <T> extractBody(responseEntity: ResponseEntity<Any>, clazz: Class<T>): T {
+        val gson = Gson()
+        return gson.fromJson(responseEntity.body.toString(), clazz)
     }
+
+    private fun getJwsCookie(request: HttpServletRequest) = WebUtils.getCookie(request, "jws")
 }
