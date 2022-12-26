@@ -146,8 +146,7 @@ class WiuserResource(val wiuserService: WiuserService, val walletService: Wallet
     }
 
     private fun <T> extractBody(responseEntity: ResponseEntity<Any>, clazz: Class<T>): T {
-        val gson = Gson()
-        return gson.fromJson(responseEntity.body.toString(), clazz)
+        return Gson().fromJson(responseEntity.body.toString(), clazz)
     }
 
     private fun getJwsCookie(request: HttpServletRequest) = WebUtils.getCookie(request, "jws")

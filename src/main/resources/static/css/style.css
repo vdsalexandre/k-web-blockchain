@@ -5,10 +5,10 @@ html { visibility: hidden; }
 }
 
 #toast-container {
-    top: 40% !important;
+    top: 310px !important;
     right: auto !important;
     bottom: auto !important;
-    left: 38%;
+    left: 42%;
 }
 
 .btn {
