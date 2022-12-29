@@ -1,10 +1,10 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val jjwtVersion: String = "0.11.5"
-val gsonVersion: String = "2.9.1"
+val gsonVersion: String = "2.10"
 val junitVersion: String = "5.9.0"
-val mockitoVersion: String = "4.8.0"
-val springMockkVersion: String = "3.1.1"
+val mockitoVersion: String = "4.10.0"
+val springMockkVersion: String = "4.0.0"
 
 plugins {
 	id("org.springframework.boot") version "2.7.4"
