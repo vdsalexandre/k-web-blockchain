@@ -50,3 +50,9 @@ body {
     left: 48%;
     z-index: 100;
 }
+
+#qrcode {
+    width: 200px;
+    height: 200px;
+    border: solid white 3px;
+}

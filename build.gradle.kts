@@ -5,6 +5,8 @@ val gsonVersion: String = "2.10"
 val junitVersion: String = "5.9.0"
 val mockitoVersion: String = "4.10.0"
 val springMockkVersion: String = "4.0.0"
+val qrcodeKotlinVersion: String = "3.2.0"
+val bouncyCastleVersion: String = "1.70"
 
 plugins {
 	id("org.springframework.boot") version "2.7.4"
@@ -33,10 +35,12 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 	implementation("com.google.code.gson:gson:$gsonVersion")
+	implementation("io.github.g0dkar:qrcode-kotlin-jvm:$qrcodeKotlinVersion")
+
 
 	compileOnly("io.jsonwebtoken:jjwt-api:$jjwtVersion")
 
-	runtimeOnly("org.bouncycastle:bcprov-jdk15on:1.70")
+	runtimeOnly("org.bouncycastle:bcprov-jdk15on:$bouncyCastleVersion")
 	runtimeOnly("io.jsonwebtoken:jjwt-impl:$jjwtVersion")
 	runtimeOnly("io.jsonwebtoken:jjwt-gson:$jjwtVersion")
 

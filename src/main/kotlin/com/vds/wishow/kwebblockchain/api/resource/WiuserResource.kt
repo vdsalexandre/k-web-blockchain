@@ -1,6 +1,7 @@
 package com.vds.wishow.kwebblockchain.api.resource
 
 import com.google.gson.Gson
+import com.vds.wishow.kwebblockchain.api.dto.QrCodeFromWallet
 import com.vds.wishow.kwebblockchain.api.dto.WalletDTO.Companion.toDto
 import com.vds.wishow.kwebblockchain.api.dto.WiuserDTO
 import com.vds.wishow.kwebblockchain.api.dto.WiuserLoginDTO
@@ -17,6 +18,7 @@ import com.vds.wishow.kwebblockchain.bootstrap.Variables.TITLE_HOME
 import com.vds.wishow.kwebblockchain.bootstrap.Variables.TITLE_LOGIN
 import com.vds.wishow.kwebblockchain.bootstrap.Variables.TITLE_REGISTER
 import com.vds.wishow.kwebblockchain.bootstrap.Variables.TITLE_WALLET
+import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.getQrCodeFromWallet
 import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.getUserDetails
 import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.getUserToken
 import com.vds.wishow.kwebblockchain.domain.model.Wallet
@@ -24,9 +26,11 @@ import com.vds.wishow.kwebblockchain.domain.service.WalletService
 import com.vds.wishow.kwebblockchain.domain.service.WiuserService
 import com.vds.wishow.kwebblockchain.security.AuthResponse
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.client.HttpClientErrorException
@@ -104,6 +108,30 @@ class WiuserResource(val wiuserService: WiuserService, val walletService: Wallet
         return handleRequest(request, attributes, "wallet", TITLE_WALLET)
     }
 
+    @GetMapping(value = ["/wallet/{walletId}"], produces = [MediaType.IMAGE_PNG_VALUE])
+    fun showQrCodeWallet(@PathVariable walletId: String, request: HttpServletRequest): ByteArray? {
+        val cookie = getJwsCookie(request)
+
+        if (cookie != null) {
+            return try {
+                val response = getUserDetails(cookie.value)
+
+                if (response.statusCode == HttpStatus.OK) {
+                    val qrCodeFromWallet = getQrCodeFromWallet(walletId)
+
+                    if (qrCodeFromWallet.statusCode == HttpStatus.OK) {
+                        val body = extractBody(qrCodeFromWallet, QrCodeFromWallet::class.java)
+                        body.qrCode
+                    }
+                }
+                null
+            } catch (e: Exception) {
+                null
+            }
+        }
+        return null
+    }
+
     @PostMapping("/wallet")
     fun createWallet(request: HttpServletRequest, attributes: RedirectAttributes): ModelAndView {
         return handleRequest(request, attributes, "wallet", TITLE_WALLET, "new-wallet")
@@ -123,15 +151,13 @@ class WiuserResource(val wiuserService: WiuserService, val walletService: Wallet
                     model["username"] = wiuserDTO.username
                     model["id"] = wiuserDTO.id
                     if (wiuserDTO.wallet != null) {
-                        model["walletid"] = wiuserDTO.wallet.walletId
-                        model["walletbalance"] = wiuserDTO.wallet.balance
+                        model["wallet"] = wiuserDTO.wallet
                     } else {
                         if (action == "new-wallet") {
                             val newWallet = Wallet(wiuserId = wiuserDTO.id)
                             walletService.save(newWallet)
                             val walletDto = newWallet.toDto()
-                            model["walletid"] = walletDto.walletId
-                            model["walletbalance"] = walletDto.balance
+                            model["wallet"] = walletDto
                         }
                     }
                     ModelAndView(view, model)

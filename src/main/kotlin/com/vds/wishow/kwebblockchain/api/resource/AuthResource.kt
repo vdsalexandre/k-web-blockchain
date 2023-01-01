@@ -1,5 +1,6 @@
 package com.vds.wishow.kwebblockchain.api.resource
 
+import com.vds.wishow.kwebblockchain.api.dto.QrCodeFromWallet
 import com.vds.wishow.kwebblockchain.api.dto.WalletDTO.Companion.toDtoOrNull
 import com.vds.wishow.kwebblockchain.api.dto.WiuserDTO
 import com.vds.wishow.kwebblockchain.api.dto.WiuserLoginDTO
@@ -51,5 +52,16 @@ class AuthResource(val wiuserService: WiuserService, val walletService: WalletSe
             ResponseEntity.ok(AuthResponse(generateJWS(keyPair.private, wiuser.id!!), wiuser.username))
         else
             errorResponse(HttpStatus.NOT_FOUND)
+    }
+
+    @GetMapping("/wallet/{walletId}")
+    fun getQrCodeFromWallet(@PathVariable walletId: String): ResponseEntity<out Any> {
+        val wallet = walletService.findById(walletId)
+
+        return if (wallet != null) {
+            ResponseEntity.ok(QrCodeFromWallet(qrCode = wallet.qrCode))
+        } else {
+            errorResponse(HttpStatus.NOT_FOUND)
+        }
     }
 }

@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
     showErrorMessage();
     initModeCookie();
     handlePreloader('hide');
+    callQrCodeUrl();
 });
 
 window.addEventListener('load', function() {
@@ -124,11 +125,34 @@ function updateInputCss(mode) {
     for (let i = 0; i < inputs.length; i++)
         inputs[i].style.color = textColor;
 
-    let userSpan = document.querySelector('.user-span');
+    let userSpan = document.querySelectorAll('.highlight-span');
     if (userSpan) {
-        if (mode === 'dark')
-            userSpan.style.color = "#A9EAFE";
-        else
-            userSpan.style.color = "#1E7FCB";
+        for (let i = 0; i < userSpan.length; i++) {
+            if (mode === 'dark')
+                userSpan[i].style.color = "#A9EAFE";
+            else
+                userSpan[i].style.color = "#1E7FCB";
+        }
+    }
+}
+
+function callQrCodeUrl() {
+    let walletId = document.getElementById("span-wallet-id");
+
+    if (walletId) {
+        const request = new XMLHttpRequest();
+        request.open("GET", "/auth/wallet/" + walletId.innerHTML, true);
+        request.responseType = "json";
+
+        request.onload = (event) => {
+            const json = request.response;
+            if (json) {
+                if (walletId) {
+                    document.getElementById("qrcode").src = "data:image/png;base64," + json.qrCode;
+                }
+            }
+        };
+
+        request.send(null);
     }
 }

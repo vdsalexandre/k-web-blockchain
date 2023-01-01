@@ -12,6 +12,7 @@ object Variables {
 
     const val URL_AUTH_TOKEN = "http://localhost:9090/auth/token"
     const val URL_AUTH_USER = "http://localhost:9090/auth/user"
+    const val URL_AUTH_WALLET = "http://localhost:9090/auth/wallet"
 
     const val RANDOM_STRING_LENGTH = 40
 }
