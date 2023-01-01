@@ -11,7 +11,7 @@
             {{# wallet }}
                 <h5 class="center-align">Wallet address: <span class="highlight-span" id="span-wallet-id">{{ wallet.walletId }}</span></h5>
                 <h6 class="center-align">{{ wallet.balance }} Wicoins</h6>
-                <img id="qrcode" src="" alt="Your wallet address" title="Your wallet address" width="200px" height="200px">
+                <img id="qrcode" src="" alt="Your wallet address" title="Your wallet address">
             {{/ wallet }}
             {{^ wallet }}
                 {{> parts/new-wallet }}

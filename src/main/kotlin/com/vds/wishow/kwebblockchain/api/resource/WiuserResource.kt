@@ -1,7 +1,7 @@
 package com.vds.wishow.kwebblockchain.api.resource
 
 import com.google.gson.Gson
-import com.vds.wishow.kwebblockchain.api.dto.QrCodeFromWallet
+import com.vds.wishow.kwebblockchain.api.dto.QrCodeDTO
 import com.vds.wishow.kwebblockchain.api.dto.WalletDTO.Companion.toDto
 import com.vds.wishow.kwebblockchain.api.dto.WiuserDTO
 import com.vds.wishow.kwebblockchain.api.dto.WiuserLoginDTO
@@ -120,7 +120,7 @@ class WiuserResource(val wiuserService: WiuserService, val walletService: Wallet
                     val qrCodeFromWallet = getQrCodeFromWallet(walletId)
 
                     if (qrCodeFromWallet.statusCode == HttpStatus.OK) {
-                        val body = extractBody(qrCodeFromWallet, QrCodeFromWallet::class.java)
+                        val body = extractBody(qrCodeFromWallet, QrCodeDTO::class.java)
                         body.qrCode
                     }
                 }
