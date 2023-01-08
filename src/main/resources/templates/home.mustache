@@ -10,22 +10,12 @@
                     </h4>
                     <ul>
                         <li>
-                            <div class="row center-align">
-                                <div class="col s6">
-                                    <div class="input-field col s12 l5">
-                                        <a class="btn tooltipped"
-                                           href="wallet"
-                                           data-position="top"
-                                           data-tooltip="Check your wallet">Wallet
-                                            <i class="material-icons right">wallet</i>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
+                            {{> parts/menu-wallet }}
                         </li>
-                        <li>Transactions history</li>
+                        <li>
+                            {{> parts/menu-logout }}
+                        </li>
                     </ul>
-                    {{> parts/logout }}
                 </div>
             </div>
         </div>
