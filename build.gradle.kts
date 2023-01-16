@@ -1,11 +1,11 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val jjwtVersion: String = "0.11.5"
-val gsonVersion: String = "2.10"
-val junitVersion: String = "5.9.0"
-val mockitoVersion: String = "4.10.0"
+val gsonVersion: String = "2.10.1"
+val junitVersion: String = "5.9.2"
+val mockitoVersion: String = "4.11.0"
 val springMockkVersion: String = "4.0.0"
-val qrcodeKotlinVersion: String = "3.2.0"
+val qrcodeKotlinVersion: String = "3.3.0"
 val bouncyCastleVersion: String = "1.70"
 
 plugins {

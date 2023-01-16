@@ -2,7 +2,5 @@
 .idea/
 build/
 gradle/
-gradlew
-gradlew.bat
 gradle.properties
 HELP.md
