@@ -13,16 +13,18 @@ import java.math.BigDecimal.valueOf
 class BlockChainTest {
     private val firstWiuser = Wiuser(1234567890, "MartyFromTheFuture", "marty123456789", "marty.mcfly@past.com")
     private val secondWiuser = Wiuser(1122334455, "DocFromThePast", "doc123456789", "doc.brown@future.com")
+
     private val firstWallet = Wallet(wiuserId = firstWiuser.id!!)
     private val secondWallet = Wallet(wiuserId = secondWiuser.id!!)
+
     private val maximumTransactions = mutableListOf(
-        Transaction(firstWallet.walletId, secondWallet.walletId, valueOf(1)),
-        Transaction(firstWallet.walletId, secondWallet.walletId, valueOf(2)),
-        Transaction(firstWallet.walletId, secondWallet.walletId, valueOf(3))
+        Transaction(sender = firstWallet.walletId, receiver = secondWallet.walletId, amount = valueOf(1)),
+        Transaction(sender = firstWallet.walletId, receiver = secondWallet.walletId, amount = valueOf(2)),
+        Transaction(sender = firstWallet.walletId, receiver = secondWallet.walletId, amount = valueOf(3))
     )
     private val transactions = mutableListOf(
-        Transaction(firstWallet.walletId, secondWallet.walletId, valueOf(1)),
-        Transaction(firstWallet.walletId, secondWallet.walletId, valueOf(2))
+        Transaction(sender = firstWallet.walletId, receiver = secondWallet.walletId, amount = valueOf(1)),
+        Transaction(sender = firstWallet.walletId, receiver = secondWallet.walletId, amount = valueOf(2))
     )
 
     @BeforeEach
@@ -38,7 +40,7 @@ class BlockChainTest {
 
         block.add(transaction)
 
-        assertThat(block.getData()).contains(transaction)
+        assertThat(block.data).contains(transaction)
     }
 
     @Test
@@ -49,7 +51,7 @@ class BlockChainTest {
         val newTransaction = Transaction(firstWallet.walletId, secondWallet.walletId, valueOf(10))
         block.add(newTransaction)
 
-        assertThat(block.getData()).contains(newTransaction)
+        assertThat(block.data).contains(newTransaction)
     }
 
     @Test
