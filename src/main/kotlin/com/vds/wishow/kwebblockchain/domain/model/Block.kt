@@ -1,7 +1,7 @@
 package com.vds.wishow.kwebblockchain.domain.model
 
 import com.vds.wishow.kwebblockchain.bootstrap.Variables.ERROR_MESSAGE_BLOCK_IS_FULL
-import com.vds.wishow.kwebblockchain.domain.bootstrap.BlockchainUtils.MAX_TRANSACTIONS_PER_BLOCK
+import com.vds.wishow.kwebblockchain.domain.bootstrap.BlockchainUtils.getMaxTransactionsLimitPerBlock
 import com.vds.wishow.kwebblockchain.domain.bootstrap.BlockchainUtils.hash
 import com.vds.wishow.kwebblockchain.domain.error.BlockException
 import java.time.Instant
@@ -26,14 +26,14 @@ data class Block(
     }
 
     fun add(transaction: Transaction) {
-        if (data.size < MAX_TRANSACTIONS_PER_BLOCK) {
+        if (data.size < getMaxTransactionsLimitPerBlock()) {
             data.add(transaction)
         } else {
             throw BlockException(ERROR_MESSAGE_BLOCK_IS_FULL)
         }
     }
 
-    fun isFull() = data.size == MAX_TRANSACTIONS_PER_BLOCK
+    fun isFull() = data.size == getMaxTransactionsLimitPerBlock()
 
     override fun toString(): String {
         return "Block(previousHash=$previousHash, " +

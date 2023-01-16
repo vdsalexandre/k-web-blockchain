@@ -1,7 +1,11 @@
 package com.vds.wishow.kwebblockchain.domain.model
 
+import com.vds.wishow.kwebblockchain.domain.bootstrap.BlockchainUtils
 import com.vds.wishow.kwebblockchain.domain.error.BlockException
+import io.mockk.every
+import io.mockk.mockkObject
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.math.BigDecimal.valueOf
@@ -14,26 +18,18 @@ class BlockChainTest {
     private val maximumTransactions = mutableListOf(
         Transaction(firstWallet.walletId, secondWallet.walletId, valueOf(1)),
         Transaction(firstWallet.walletId, secondWallet.walletId, valueOf(2)),
-        Transaction(firstWallet.walletId, secondWallet.walletId, valueOf(3)),
-        Transaction(firstWallet.walletId, secondWallet.walletId, valueOf(4)),
-        Transaction(firstWallet.walletId, secondWallet.walletId, valueOf(5)),
-        Transaction(firstWallet.walletId, secondWallet.walletId, valueOf(6)),
-        Transaction(firstWallet.walletId, secondWallet.walletId, valueOf(7)),
-        Transaction(firstWallet.walletId, secondWallet.walletId, valueOf(8)),
-        Transaction(firstWallet.walletId, secondWallet.walletId, valueOf(9)),
-        Transaction(firstWallet.walletId, secondWallet.walletId, valueOf(10))
+        Transaction(firstWallet.walletId, secondWallet.walletId, valueOf(3))
     )
     private val transactions = mutableListOf(
         Transaction(firstWallet.walletId, secondWallet.walletId, valueOf(1)),
-        Transaction(firstWallet.walletId, secondWallet.walletId, valueOf(2)),
-        Transaction(firstWallet.walletId, secondWallet.walletId, valueOf(3)),
-        Transaction(firstWallet.walletId, secondWallet.walletId, valueOf(4)),
-        Transaction(firstWallet.walletId, secondWallet.walletId, valueOf(5)),
-        Transaction(firstWallet.walletId, secondWallet.walletId, valueOf(6)),
-        Transaction(firstWallet.walletId, secondWallet.walletId, valueOf(7)),
-        Transaction(firstWallet.walletId, secondWallet.walletId, valueOf(8)),
-        Transaction(firstWallet.walletId, secondWallet.walletId, valueOf(9))
+        Transaction(firstWallet.walletId, secondWallet.walletId, valueOf(2))
     )
+
+    @BeforeEach
+    fun setUp() {
+        mockkObject(BlockchainUtils)
+        every { BlockchainUtils.getMaxTransactionsLimitPerBlock() } returns 3
+    }
 
     @Test
     fun `the new transaction should be present in the block`() {
@@ -90,6 +86,17 @@ class BlockChainTest {
 
         assertThat(minedBlock).isNull()
         assertThat(blockchain.size()).isEqualTo(1)
+    }
+
+    @Test
+    fun `the first block added should have initial block hash property`() {
+        val blockchain = Blockchain(difficulty = 1)
+        val firstBlock = Block()
+
+        firstBlock.addAll(maximumTransactions)
+        blockchain.add(firstBlock)
+
+        assertThat(blockchain.elementAt(1).previousHash).isEqualTo(blockchain.elementAt(0).hash)
     }
 
     @Test

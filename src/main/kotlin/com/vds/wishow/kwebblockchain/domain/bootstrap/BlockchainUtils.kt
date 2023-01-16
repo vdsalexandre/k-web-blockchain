@@ -8,9 +8,11 @@ import kotlin.random.Random
 object BlockchainUtils {
     private const val KEYPAIR_ALGORITHM = "RSA"
     private const val KEY_SIZE = 4096
-    const val MAX_TRANSACTIONS_PER_BLOCK = 10
+    private const val MAX_TRANSACTIONS_PER_BLOCK = 10
     private const val HASH_ALGORITHM = "SHA-256"
     private const val RANDOM_STRING_LENGTH = 40
+
+    fun getMaxTransactionsLimitPerBlock() = MAX_TRANSACTIONS_PER_BLOCK
 
     fun generateKeyPair(): KeyPair {
         val keyPairGenerator = KeyPairGenerator.getInstance(KEYPAIR_ALGORITHM)

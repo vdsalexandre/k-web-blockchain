@@ -7,6 +7,7 @@ val mockitoVersion: String = "4.11.0"
 val springMockkVersion: String = "4.0.0"
 val qrcodeKotlinVersion: String = "3.3.0"
 val bouncyCastleVersion: String = "1.70"
+val mockkVersion: String = "1.13.3"
 
 plugins {
 	id("org.springframework.boot") version "2.7.4"
@@ -52,6 +53,7 @@ dependencies {
 	testImplementation("org.junit.jupiter:junit-jupiter:$junitVersion")
 	testImplementation("org.mockito:mockito-core:$mockitoVersion")
 	testImplementation("com.ninja-squad:springmockk:$springMockkVersion")
+	testImplementation("io.mockk:mockk:$mockkVersion")
 }
 
 tasks.withType<KotlinCompile> {
