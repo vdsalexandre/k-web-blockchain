@@ -42,7 +42,7 @@ class BlockChainTest {
 
         block.add(transaction)
 
-        assertThat(block.data).contains(transaction)
+        assertThat(block.getData()).contains(transaction)
     }
 
     @Test
@@ -53,7 +53,7 @@ class BlockChainTest {
         val newTransaction = Transaction(firstWallet.walletId, secondWallet.walletId, valueOf(10))
         block.add(newTransaction)
 
-        assertThat(block.data).contains(newTransaction)
+        assertThat(block.getData()).contains(newTransaction)
     }
 
     @Test
@@ -77,7 +77,7 @@ class BlockChainTest {
         val minedBlock = blockchain.add(block)
 
         assertThat(minedBlock?.let { blockchain.contains(it) }).isTrue
-        assertThat(blockchain.size()).isEqualTo(1)
+        assertThat(blockchain.size()).isEqualTo(2)
     }
 
     @Test
@@ -89,6 +89,21 @@ class BlockChainTest {
         val minedBlock = blockchain.add(block)
 
         assertThat(minedBlock).isNull()
-        assertThat(blockchain.size()).isEqualTo(0)
+        assertThat(blockchain.size()).isEqualTo(1)
+    }
+
+    @Test
+    fun `the second block added should have previous hash block property`() {
+        val blockchain = Blockchain(difficulty = 1)
+        val firstBlock = Block()
+        val secondBlock = Block()
+
+        firstBlock.addAll(maximumTransactions)
+        blockchain.add(firstBlock)
+        secondBlock.addAll(transactions)
+        secondBlock.add(Transaction(secondWallet.walletId, firstWallet.walletId, valueOf(500)))
+        blockchain.add(secondBlock)
+
+        assertThat(blockchain.elementAt(2).previousHash).isEqualTo(blockchain.elementAt(1).hash)
     }
 }

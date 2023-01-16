@@ -9,13 +9,15 @@ import java.time.Instant
 data class Block(
     val previousHash: String = "0",
     val datetime: Long = Instant.now().toEpochMilli(),
-    val data: MutableList<Transaction> = mutableListOf(),
+    private val data: MutableList<Transaction> = mutableListOf(),
     val nonce: Long = 0,
     var hash: String = ""
 ) {
     init {
         hash = hash(stringToHash = "$previousHash$data$datetime$nonce")
     }
+
+    fun getData() = data
 
     fun addAll(transactions: List<Transaction>) {
         for (transaction in transactions) {
@@ -32,4 +34,12 @@ data class Block(
     }
 
     fun isFull() = data.size == MAX_TRANSACTIONS_PER_BLOCK
+
+    override fun toString(): String {
+        return "Block(previousHash=$previousHash, " +
+                "datetime=$datetime, " +
+                "nonce=$nonce, " +
+                "hash=$hash, " +
+                "data=${getData()})"
+    }
 }
