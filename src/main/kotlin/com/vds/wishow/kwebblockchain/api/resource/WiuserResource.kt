@@ -21,6 +21,7 @@ import com.vds.wishow.kwebblockchain.bootstrap.Variables.TITLE_WALLET
 import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.getQrCodeFromWallet
 import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.getUserDetails
 import com.vds.wishow.kwebblockchain.bootstrap.WiuserUtils.getUserToken
+import com.vds.wishow.kwebblockchain.domain.bootstrap.BlockchainUtils.generatePrivateWords
 import com.vds.wishow.kwebblockchain.domain.model.Wallet
 import com.vds.wishow.kwebblockchain.domain.service.WalletService
 import com.vds.wishow.kwebblockchain.domain.service.WiuserService
@@ -154,10 +155,13 @@ class WiuserResource(val wiuserService: WiuserService, val walletService: Wallet
                         model["wallet"] = wiuserDTO.wallet
                     } else {
                         if (action == "new-wallet") {
+                            val privateWords = generatePrivateWords()
                             val newWallet = Wallet(wiuserId = wiuserDTO.id)
+                            newWallet.setPrivateKey(privateWords)
                             walletService.save(newWallet)
                             val walletDto = newWallet.toDto()
                             model["wallet"] = walletDto
+                            model["privatewords"] = privateWords
                         }
                     }
                     ModelAndView(view, model)

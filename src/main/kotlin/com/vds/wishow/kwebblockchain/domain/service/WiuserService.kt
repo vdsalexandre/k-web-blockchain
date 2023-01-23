@@ -24,5 +24,6 @@ class WiuserService(val repository: WiuserRepository) {
 
         return repository.save(wiuser)
     }
+
     fun findById(id: Long): Wiuser? = repository.findByIdOrNull(id)
 }

@@ -2,11 +2,9 @@ package com.vds.wishow.kwebblockchain.bootstrap
 
 import io.jsonwebtoken.Jwts
 import org.springframework.http.HttpStatus
-import java.security.Key
 import java.security.PrivateKey
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.Base64
 import java.util.Date
 import javax.servlet.http.Cookie
 import javax.servlet.http.HttpServletResponse
@@ -67,6 +65,4 @@ object AuthUtils {
             false
         }
     }
-
-    fun keyToString(key: Key): String = Base64.getEncoder().encodeToString(key.encoded)
 }

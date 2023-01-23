@@ -31,6 +31,9 @@ class BlockChainTest {
     fun setUp() {
         mockkObject(BlockchainUtils)
         every { BlockchainUtils.getMaxTransactionsLimitPerBlock() } returns 3
+        every { BlockchainUtils.getDifficulty() } returns 1
+
+        Blockchain.resetBlockchain()
     }
 
     @Test
@@ -68,51 +71,47 @@ class BlockChainTest {
 
     @Test
     fun `when a block is full it should be added to the blockchain`() {
-        val blockchain = Blockchain(difficulty = 1)
         val block = Block()
 
         block.addAll(maximumTransactions)
-        val minedBlock = blockchain.add(block)
+        val minedBlock = Blockchain.add(block)
 
-        assertThat(minedBlock?.let { blockchain.contains(it) }).isTrue
-        assertThat(blockchain.size()).isEqualTo(2)
+        assertThat(minedBlock?.let { Blockchain.contains(it) }).isTrue
+        assertThat(Blockchain.size()).isEqualTo(2)
     }
 
     @Test
     fun `when a block is not full it should not be added to the blockchain`() {
-        val blockchain = Blockchain(difficulty = 1)
         val block = Block()
 
         block.addAll(transactions)
-        val minedBlock = blockchain.add(block)
+        val minedBlock = Blockchain.add(block)
 
         assertThat(minedBlock).isNull()
-        assertThat(blockchain.size()).isEqualTo(1)
+        assertThat(Blockchain.size()).isEqualTo(1)
     }
 
     @Test
     fun `the first block added should have initial block hash property`() {
-        val blockchain = Blockchain(difficulty = 1)
         val firstBlock = Block()
 
         firstBlock.addAll(maximumTransactions)
-        blockchain.add(firstBlock)
+        Blockchain.add(firstBlock)
 
-        assertThat(blockchain.elementAt(1).previousHash).isEqualTo(blockchain.elementAt(0).hash)
+        assertThat(Blockchain.elementAt(1).previousHash).isEqualTo(Blockchain.elementAt(0).hash)
     }
 
     @Test
     fun `the second block added should have previous hash block property`() {
-        val blockchain = Blockchain(difficulty = 1)
         val firstBlock = Block()
         val secondBlock = Block()
 
         firstBlock.addAll(maximumTransactions)
-        blockchain.add(firstBlock)
+        Blockchain.add(firstBlock)
         secondBlock.addAll(transactions)
         secondBlock.add(Transaction(secondWallet.walletId, firstWallet.walletId, valueOf(500)))
-        blockchain.add(secondBlock)
+        Blockchain.add(secondBlock)
 
-        assertThat(blockchain.elementAt(2).previousHash).isEqualTo(blockchain.elementAt(1).hash)
+        assertThat(Blockchain.elementAt(2).previousHash).isEqualTo(Blockchain.elementAt(1).hash)
     }
 }

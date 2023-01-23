@@ -1,11 +1,18 @@
 package com.vds.wishow.kwebblockchain.domain.model
 
-class Blockchain(difficulty: Int = 5) {
-    private val validPrefix = "0".repeat(difficulty)
-    private val blocks = mutableListOf<Block>()
+import com.vds.wishow.kwebblockchain.domain.bootstrap.BlockchainUtils.getDifficulty
+
+object Blockchain {
+    private val validPrefix: String = "0".repeat(getDifficulty())
+    private var blocks = mutableListOf<Block>()
 
     init {
-        blocks.add(Block(previousHash = "0"))
+        addFirstBlock()
+    }
+
+    fun resetBlockchain() {
+        blocks.clear()
+        addFirstBlock()
     }
 
     fun add(block: Block): Block? {
@@ -23,6 +30,8 @@ class Blockchain(difficulty: Int = 5) {
     fun size() = blocks.size
 
     fun elementAt(position: Int) = blocks.elementAt(position)
+
+    private fun addFirstBlock() = blocks.add(Block(previousHash = "0"))
 
     private fun mine(block: Block): Block {
         var minedBlock = block.copy()

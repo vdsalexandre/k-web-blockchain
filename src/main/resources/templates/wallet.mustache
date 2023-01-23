@@ -12,6 +12,12 @@
                 <h5 class="center-align">Wallet address: <span class="highlight-span" id="span-wallet-id">{{ wallet.walletId }}</span></h5>
                 <h6 class="center-align">{{ wallet.balance }} Wicoins</h6>
                 <img id="qrcode" src="" alt="Your wallet address" title="Your wallet address">
+                <h6 class="center-align" title="they are used to regenerate the private key">Save your private words</h6>
+                <ul>
+                    {{# wallet.privateWords }}
+                        <li>{{ wallet.privateWords }}</li>
+                    {{/ wallet.privateWords }}
+                </ul>
             {{/ wallet }}
             {{^ wallet }}
                 {{> parts/new-wallet }}
